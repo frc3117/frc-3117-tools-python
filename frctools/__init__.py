@@ -1,3 +1,4 @@
+from .robot import RobotBase
 from .servo import Servo
 
 from . import drivetrain
@@ -6,8 +7,9 @@ from . import frcmath
 
 
 __all__ = [
-    "Servo",
-    "drivetrain",
-    "input",
-    "frcmath"
+    'RobotBase',
+    'Servo',
+    'drivetrain',
+    'input',
+    'frcmath'
 ]

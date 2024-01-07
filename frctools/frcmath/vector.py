@@ -1,4 +1,6 @@
 from typing import Tuple, List
+from frctools.frcmath import TAU
+
 import math
 
 
@@ -126,7 +128,7 @@ class VectorBase:
 
 
 class Vector2(VectorBase):
-    def __init__(self, x: float, y: float):
+    def __init__(self, x: float = 0, y: float = 0):
         self.x = float(x)
         self.y = float(y)
 
@@ -160,7 +162,7 @@ class Vector2(VectorBase):
 
 
 class Vector3(VectorBase):
-    def __init__(self, x: float, y: float, z: float):
+    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
         self.x = float(x)
         self.y = float(y)
         self.z = float(z)
@@ -203,3 +205,129 @@ class Vector3(VectorBase):
 
     def __len__(self):
         return 3
+
+
+class Vector4(VectorBase):
+    def __init__(self, x: float = 0, y: float = 0, z: float = 0, w: float = 0):
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
+        self.w = float(w)
+
+    # --- Vector Methods ---
+
+    # --- Operators Overloads ---
+
+    def __getitem__(self, item):
+        if item == 0:
+            return self.x
+        elif item == 1:
+            return self.y
+        elif item == 2:
+            return self.z
+        elif item == 3:
+            return self.w
+
+        raise IndexError(f"Index {item} out of range for Vector4.")
+
+    def __setitem__(self, key, value):
+        if key == 0:
+            self.x = value
+        elif key == 1:
+            self.y = value
+        elif key == 2:
+            self.z = value
+        elif key == 3:
+            self.w = value
+        else:
+            raise IndexError(f"Index {key} out of range for Vector4.")
+
+    def __len__(self):
+        return 4
+
+
+class Quaternion(VectorBase):
+    def __init__(self, x: float, y: float, z: float, w: float):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.w = w
+
+    @staticmethod
+    def from_euler(euler) -> 'Quaternion':
+        cr = math.cos(euler.x * 0.5)
+        sr = math.sin(euler.x * 0.5)
+        cp = math.cos(euler.y * 0.5)
+        sp = math.sin(euler.y * 0.5)
+        cy = math.cos(euler.z * 0.5)
+        sy = math.sin(euler.z * 0.5)
+
+        return Quaternion(sr * cp * cy - cr * sp * sy,
+                          cr * sp * cy + sr * cp * sy,
+                          cr * cp * sy - sr * sp * cy,
+                          cr * cp * cy + sr * sp * sy)
+
+    @property
+    def euler(self) -> Vector3:
+        sinr_cosp = 2 * (self.w * self.x + self.y * self.z)
+        cosr_cosp = 1 - 2 * (self.x**2 + self.y**2)
+        x = math.atan2(sinr_cosp, cosr_cosp)
+
+        y_common = 2 * (self.w * self.y - self.x * self.z)
+        sinp = math.sqrt(1 + y_common)
+        cosp = math.sqrt(1 - y_common)
+        y = math.atan2(sinp, cosp) - math.pi / 2
+
+        siny_cosp = 2 * (self.w * self.z + self.x * self.y)
+        cosy_cosp = 1 - 2 * (self.y**2 + self.z * self.y**2)
+        z = math.atan2(siny_cosp, cosy_cosp)
+
+        return Vector3(x, y, z)
+
+    # TODO: Add Custom Quaternion Operators
+
+    def __getitem__(self, item):
+        if item == 0:
+            return self.x
+        elif item == 1:
+            return self.y
+        elif item == 2:
+            return self.z
+        elif item == 3:
+            return self.w
+
+        raise IndexError(f"Index {item} out of range for Quaternion.")
+
+    def __setitem__(self, key, value):
+        if key == 0:
+            self.x = value
+        elif key == 1:
+            self.y = value
+        elif key == 2:
+            self.z = value
+        elif key == 3:
+            self.w = value
+        else:
+            raise IndexError(f"Index {key} out of range for Quaternion.")
+
+    def __len__(self):
+        return 4
+
+
+class Polar:
+    def __init__(self, theta, radius):
+        self.theta = theta
+        self.radius = radius
+
+    @staticmethod
+    def from_vector(vec) -> 'Polar':
+        return Polar(math.atan2(vec.y, vec.x),
+                     vec.magnitude())
+
+    def to_vector(self) -> Vector2:
+        return Vector2(self.radius * math.cos(self.theta),
+                       self.radius * math.sin(self.theta))
+
+    def rotate(self, angle):
+        self.theta += angle
+        self.theta %= TAU

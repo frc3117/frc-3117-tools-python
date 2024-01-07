@@ -88,3 +88,7 @@ class Input:
         cls.__inputs__[name] = axis
 
         return axis
+
+    @classmethod
+    def get_input(cls, name):
+        return cls.__inputs__[name]
