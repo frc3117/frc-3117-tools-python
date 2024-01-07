@@ -6,3 +6,4 @@ class Servo:
         pass
 
     def get_angle(self) -> float:
+        pass
