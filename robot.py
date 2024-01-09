@@ -1,27 +1,12 @@
 import wpilib
 
-from frctools.drivetrain import SwerveDrive, SwerveModule
-from frctools.frcmath import Vector2
-
 
 class RobotBase(wpilib.TimedRobot):
     def __init__(self):
         super().__init__()
 
-        self.swerve = None
-
     def robotInit(self):
-        vec = Vector2(1, 1)
-        vec += (1, 2)
-
-        print(vec)
-
-        self.swerve = SwerveDrive([
-            SwerveModule(wpilib.PWMSparkMax(0), None),
-            SwerveModule(wpilib.PWMSparkMax(1), None),
-            SwerveModule(wpilib.PWMSparkMax(2), None),
-            SwerveModule(wpilib.PWMSparkMax(3), None)
-        ])
+        pass
 
     def robotPeriodic(self):
         pass
