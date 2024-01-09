@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 from wpilib import Joystick
 
 from frctools import frcmath
@@ -44,7 +44,7 @@ class Input:
         self.cutoff = 0.5
         self.click_value = 1.0
 
-    def get(self) -> bool | float:
+    def get(self) -> Union[bool, float]:
         if self.mode == Input.BUTTON_MODE:
             return self.__get_button__()
         elif self.mode == Input.AXIS_MODE:
