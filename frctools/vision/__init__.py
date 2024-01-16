@@ -1,5 +1,9 @@
-from .apriltags import AprilTag
+from .camera import CameraThread
+from .apriltags import AprilTag, AprilTagCamera
+
 
 __all__ = [
-    'AprilTag'
+    'CameraThread',
+    'AprilTag',
+    'AprilTagCamera'
 ]

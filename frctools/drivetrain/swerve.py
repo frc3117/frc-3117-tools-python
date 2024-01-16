@@ -1,12 +1,12 @@
 from typing import List
-from frctools import Servo
+from frctools import Component, Servo
 from frctools.input import Input
 from frctools.frcmath import Vector2, Polar
 
 import math
 
 
-class SwerveModule:
+class SwerveModule(Component):
     def __init__(self, drive_motor, steering_servo: Servo, position: Vector2):
         self.drive = drive_motor
         self.steering = steering_servo
@@ -14,6 +14,17 @@ class SwerveModule:
         self.flipped = False
 
         self.rotation_vector = Vector2(position.y, -position.x)
+
+    def init(self):
+        pass
+
+    def update(self, horizontal: float, vertical: float, rotation: float):
+        # Compute the translation and rotation vectors
+        trans = Vector2(horizontal, vertical)
+        rot = self.rotation_vector * rotation
+
+        sum_vec = trans + rot
+
 
     def get_steer_angle(self) -> float:
         return self.steering.get_angle()
@@ -35,24 +46,8 @@ class SwerveModule:
 
         return raw
 
-    def start(self):
-        pass
 
-    def update(self, horizontal: float, vertical: float, rotation: float):
-        # Compute the translation and rotation vectors
-        trans = Vector2(horizontal, vertical)
-        rot = self.rotation_vector * rotation
-
-        sum_vec = trans + rot
-
-        # Should we do a flip?
-        instant = self.get_instant_vector()
-        if sum_vec.dot(instant) < 0:
-            self.flipped = not self.flipped
-            instant *= -1
-
-
-class SwerveDrive:
+class SwerveDrive(Component):
     def __init__(self, modules: List[SwerveModule]):
         self.modules = modules
 
@@ -60,9 +55,9 @@ class SwerveDrive:
         self.vertical: Input = Input.get_input('vertical')
         self.rotation: Input = Input.get_input('rotation')
 
-    def start(self):
+    def init(self):
         for mod in self.modules:
-            mod.start()
+            mod.init()
 
     def update(self):
         for mod in self.modules:

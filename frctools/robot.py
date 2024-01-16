@@ -5,6 +5,8 @@ class RobotBase(wpilib.TimedRobot):
     def __init__(self):
         super().__init__()
 
+        self.__components = []
+
     def robotInit(self):
         pass
 
@@ -12,16 +14,24 @@ class RobotBase(wpilib.TimedRobot):
         pass
 
     def autonomousInit(self):
-        pass
+        for comp in self.__components:
+            comp.init()
+            comp.init_auto()
 
     def autonomousPeriodic(self):
-        pass
+        for comp in self.__components:
+            comp.update()
+            comp.update_auto()
 
     def teleopInit(self):
-        pass
+        for comp in self.__components:
+            comp.init()
+            comp.init_teleop()
 
     def teleopPeriodic(self):
-        pass
+        for comp in self.__components:
+            comp.update()
+            comp.update_teleop()
 
     def testInit(self):
         pass
