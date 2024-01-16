@@ -1,7 +1,7 @@
 from typing import List
 from frctools import Servo
 from frctools.input import Input
-from frctools.frcmath import Vector2, Polar, TAU
+from frctools.frcmath import Vector2, Polar
 
 import math
 
