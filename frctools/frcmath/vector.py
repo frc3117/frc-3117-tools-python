@@ -1,5 +1,4 @@
 from typing import Tuple, List
-from frctools.frcmath import TAU
 
 import math
 
@@ -142,6 +141,9 @@ class Vector2(VectorBase):
     # --- Operators Overloads ---
 
     def __getitem__(self, item):
+        if isinstance(item, slice):
+            return [self[i] for i in range(len(self))[item]]
+
         if item == 0:
             return self.x
         elif item == 1:
@@ -184,6 +186,9 @@ class Vector3(VectorBase):
     # --- Operators Overloads ---
 
     def __getitem__(self, item):
+        if isinstance(item, slice):
+            return [self[i] for i in range(len(self))[item]]
+
         if item == 0:
             return self.x
         elif item == 1:
@@ -219,6 +224,9 @@ class Vector4(VectorBase):
     # --- Operators Overloads ---
 
     def __getitem__(self, item):
+        if isinstance(item, slice):
+            return [self[i] for i in range(len(self))[item]]
+
         if item == 0:
             return self.x
         elif item == 1:
@@ -287,6 +295,9 @@ class Quaternion(VectorBase):
     # TODO: Add Custom Quaternion Operators
 
     def __getitem__(self, item):
+        if isinstance(item, slice):
+            return [self[i] for i in range(len(self))[item]]
+
         if item == 0:
             return self.x
         elif item == 1:
@@ -330,4 +341,4 @@ class Polar:
 
     def rotate(self, angle):
         self.theta += angle
-        self.theta %= TAU
+        self.theta %= math.tau

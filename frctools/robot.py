@@ -1,3 +1,8 @@
+from .timer import Timer
+from .component import Component
+
+from typing import Dict
+
 import wpilib
 
 
@@ -5,31 +10,35 @@ class RobotBase(wpilib.TimedRobot):
     def __init__(self):
         super().__init__()
 
-        self.__components = []
+        self.__components: Dict[str, Component] = {}
 
     def robotInit(self):
         pass
 
     def robotPeriodic(self):
-        pass
+        if self.isEnabled():
+            Timer.evaluate()
 
     def autonomousInit(self):
-        for comp in self.__components:
+        for name, comp in self.__components.items():
             comp.init()
             comp.init_auto()
 
     def autonomousPeriodic(self):
-        for comp in self.__components:
+        Timer.evaluate()
+
+        for name, comp in self.__components.items():
             comp.update()
             comp.update_auto()
 
     def teleopInit(self):
-        for comp in self.__components:
+        for name, comp in self.__components.items():
             comp.init()
             comp.init_teleop()
 
     def teleopPeriodic(self):
-        for comp in self.__components:
+        Timer.evaluate()
+        for name, comp in self.__components.items():
             comp.update()
             comp.update_teleop()
 
@@ -44,3 +53,10 @@ class RobotBase(wpilib.TimedRobot):
 
     def disabledPeriodic(self):
         pass
+
+    def disabledExit(self):
+        Timer.init()
+
+    def add_component(self, name: str, component: Component):
+        self.__components[name] = component
+

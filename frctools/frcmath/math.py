@@ -1,4 +1,9 @@
+from typing import TypeVar
+
 import math
+
+
+T = TypeVar('T')
 
 HALF_PI = math.pi / 2
 
@@ -13,7 +18,14 @@ def deadzone(axis: float, deadzone_val: float) -> float:
 
 
 def repeat(t: float, length: float) -> float:
-    return clamp(t - math.floor(t / length) * length, 0, length)
+    t_abs = abs(t)
+    res = clamp(t_abs - math.floor(t_abs / length) * length, 0, length)
+
+    return length - res if t < 0 else res
+
+
+def lerp(a: T, b: T, t: float) -> T:
+    return (1 - t) * a + t * b
 
 
 def delta_angle(current: float, target: float) -> float:
