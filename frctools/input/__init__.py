@@ -1,6 +1,7 @@
-from .input import Input
+from .input import XboxControllerInput, Input
 
 
 __all__ = [
+    'XboxControllerInput',
     'Input'
 ]

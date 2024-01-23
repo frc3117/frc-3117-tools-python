@@ -64,8 +64,6 @@ class Timer:
 
         __FRAME_COUNT += 1
 
-        Timer.do_coroutines()
-
     @staticmethod
     def start_coroutine(coroutine, order: CoroutineOrder = CoroutineOrder.NORMAL) -> Coroutine:
         cor = Coroutine(coroutine, order)
@@ -97,18 +95,29 @@ class Timer:
             __LATE_COROUTINE.remove(coroutine)
 
     @staticmethod
-    def do_coroutines():
-        global __EARLY_COROUTINES, __NORMAL_COROUTINES, __LATE_COROUTINE
-
-        def coroutines_loop(coroutines: List[Coroutine]):
+    def __do_coroutines__(coroutines: List[Coroutine]):
+        try:
             for cor in coroutines:
                 cor.do_coroutine()
                 if cor.is_done:
                     coroutines.remove(cor)
+        except Exception as e:
+            print(e)
 
-        coroutines_loop(__EARLY_COROUTINES)
-        coroutines_loop(__NORMAL_COROUTINES)
-        coroutines_loop(__LATE_COROUTINE)
+    @staticmethod
+    def do_early_coroutines():
+        global __EARLY_COROUTINES
+        Timer.__do_coroutines__(__EARLY_COROUTINES)
+
+    @staticmethod
+    def do_coroutines():
+        global __NORMAL_COROUTINES
+        Timer.__do_coroutines__(__NORMAL_COROUTINES)
+
+    @staticmethod
+    def do_late_coroutines():
+        global __LATE_COROUTINE
+        Timer.__do_coroutines__(__LATE_COROUTINE)
 
     @staticmethod
     def get_delta_time():

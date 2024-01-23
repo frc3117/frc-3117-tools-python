@@ -20,27 +20,16 @@ class RobotBase(wpilib.TimedRobot):
             Timer.evaluate()
 
     def autonomousInit(self):
-        for name, comp in self.__components.items():
-            comp.init()
-            comp.init_auto()
+        self.__component_init__(lambda comp: comp.init_teleop)
 
     def autonomousPeriodic(self):
-        Timer.evaluate()
-
-        for name, comp in self.__components.items():
-            comp.update()
-            comp.update_auto()
+        self.__component_update__(lambda comp: comp.update_auto)
 
     def teleopInit(self):
-        for name, comp in self.__components.items():
-            comp.init()
-            comp.init_teleop()
+        self.__component_init__(lambda comp: comp.init_teleop())
 
     def teleopPeriodic(self):
-        Timer.evaluate()
-        for name, comp in self.__components.items():
-            comp.update()
-            comp.update_teleop()
+        self.__component_update__(lambda comp: comp.update_teleop())
 
     def testInit(self):
         pass
@@ -60,3 +49,19 @@ class RobotBase(wpilib.TimedRobot):
     def add_component(self, name: str, component: Component):
         self.__components[name] = component
 
+    def __component_init__(self, action):
+        for name, comp in self.__components.items():
+            comp.init()
+            if action is not None:
+                action(comp)
+
+    def __component_update__(self, action):
+        Timer.do_early_coroutines()
+
+        for name, comp in self.__components.items():
+            comp.update()
+            if action is not None:
+                action(comp)
+
+        Timer.do_coroutines()
+        Timer.do_late_coroutines()

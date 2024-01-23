@@ -1,4 +1,5 @@
 from typing import Tuple, List
+from .math import angle_normalize
 
 import math
 
@@ -19,8 +20,8 @@ class VectorBase:
 
     def sqr_magnitude(self) -> float:
         mag = 0
-        for i in self:
-            mag += i ** 2
+        for val in self:
+            mag += math.pow(val, 2)
 
         return mag
 
@@ -94,7 +95,7 @@ class VectorBase:
     def __truediv__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
         for i in range(len(self)):
-            other_vec[i] /= self[i]
+            other_vec[i] = self[i] / other_vec[i]
 
         return self.__class__.from_list(other_vec)
 
@@ -332,13 +333,22 @@ class Polar:
 
     @staticmethod
     def from_vector(vec) -> 'Polar':
-        return Polar(math.atan2(vec.y, vec.x),
+        return Polar(angle_normalize(math.atan2(vec.y, vec.x)),
                      vec.magnitude())
 
     def to_vector(self) -> Vector2:
         return Vector2(self.radius * math.cos(self.theta),
                        self.radius * math.sin(self.theta))
 
-    def rotate(self, angle):
-        self.theta += angle
-        self.theta %= math.tau
+    def rotate(self, angle: float) -> 'Polar':
+        self.theta = angle_normalize(self.theta + angle)
+        return self
+
+    def copy(self) -> 'Polar':
+        return Polar(self.theta, self.radius)
+
+    def __str__(self):
+        return f'({self.radius}, {self.theta}°)'
+
+    def __repr__(self):
+        return f'Polar({str(self)})'

@@ -1,11 +1,17 @@
 from typing import TypeVar
 
 import math
+import sys
 
 
 T = TypeVar('T')
 
 HALF_PI = math.pi / 2
+EPSILON = sys.float_info.epsilon
+
+
+def approximately(a: float, b: float, epsilon=EPSILON) -> bool:
+    return abs(a - b) <= epsilon
 
 
 def clamp(value: float, min_val: float, max_val: float):
@@ -13,7 +19,12 @@ def clamp(value: float, min_val: float, max_val: float):
 
 
 def deadzone(axis: float, deadzone_val: float) -> float:
-    deadzone_axis = clamp((abs(axis) - deadzone_val) / (1 - axis), 0, 1)
+    if approximately(axis, 0):
+        return 0.
+    elif approximately(axis, 1):
+        return 1.
+
+    deadzone_axis = clamp((abs(axis) - deadzone_val) / (1 - deadzone_val), 0, 1)
     return math.copysign(deadzone_axis, axis)
 
 
@@ -22,6 +33,10 @@ def repeat(t: float, length: float) -> float:
     res = clamp(t_abs - math.floor(t_abs / length) * length, 0, length)
 
     return length - res if t < 0 else res
+
+
+def angle_normalize(angle: float):
+    return repeat(angle, math.tau)
 
 
 def lerp(a: T, b: T, t: float) -> T:

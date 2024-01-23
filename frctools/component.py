@@ -1,4 +1,7 @@
-class Component:
+import wpiutil
+
+
+class Component(wpiutil.Sendable):
     def init_auto(self):
         pass
 
