@@ -15,7 +15,7 @@ class PID:
             dt = Timer.get_delta_time()
 
         derivative = (self.__previous_error - error) / dt
-        self.__integral = error * dt
+        self.__integral += error * dt
         self.__previous_error = error
 
         return self.kp * error + self.ki * self.__integral + self.kd * derivative

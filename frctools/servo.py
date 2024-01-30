@@ -1,4 +1,4 @@
-from frctools.frcmath import lerp, repeat
+from frctools.frcmath import lerp, repeat, delta_angle
 from frctools.timer import Timer, CoroutineOrder
 
 import math
@@ -23,13 +23,24 @@ class Servo:
         if self.__coroutine is not None:
             Timer.stop_coroutine(self.__coroutine)
 
+    def is_in_controll(self):
+        if self.__coroutine is None:
+            return False
+
+        return not self.__coroutine.is_done
+
     def __control_coroutines__(self):
         while True:
-            angle = self.get_angle()
-            error = self.__target - angle
+            try:
+                angle = self.get_angle()
+                error = delta_angle(angle, self.__target)
 
-            self.__motor.set(self.controller.evaluate(error))
-            yield None
+                controll = self.controller.evaluate(error)
+                self.__motor.set(controll)
+            except Exception as e:
+                print(e)
+            finally:
+                yield None
 
     def set(self, target: float):
         self.__target = target

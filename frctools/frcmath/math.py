@@ -44,11 +44,11 @@ def lerp(a: T, b: T, t: float) -> T:
 
 
 def delta_angle(current: float, target: float) -> float:
-    delta = repeat((target - current), math.tau)
-    if delta > HALF_PI:
-        return delta - math.pi
+    t = target - current
+    length = math.tau
 
-    return delta
+    delta_ang = clamp(t - math.floor(t / length) * length, 0., length)
+    return delta_ang - (math.tau if delta_ang > math.pi else 0)
 
 
 def __get_power_of__(num: float, power: float, method) -> float:

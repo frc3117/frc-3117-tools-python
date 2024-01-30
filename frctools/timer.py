@@ -4,17 +4,6 @@ from typing import List
 import time
 
 
-__START_TIME = 0.
-__LAST_TIME = 0.
-
-__DT = 0.
-__FRAME_COUNT = 0
-
-__EARLY_COROUTINES: List['Coroutine'] = []
-__NORMAL_COROUTINES: List['Coroutine'] = []
-__LATE_COROUTINE: List['Coroutine'] = []
-
-
 class CoroutineOrder(int, Enum):
     EARLY = 0
     NORMAL = 1
@@ -39,60 +28,60 @@ class Coroutine:
 
 
 class Timer:
+    __START_TIME = 0.
+    __LAST_TIME = 0.
+
+    __DT = 0.
+    __FRAME_COUNT = 0
+
+    __EARLY_COROUTINES: List['Coroutine'] = []
+    __NORMAL_COROUTINES: List['Coroutine'] = []
+    __LATE_COROUTINE: List['Coroutine'] = []
+
     @staticmethod
     def init():
-        global __START_TIME, __LAST_TIME, __DT, __FRAME_COUNT, __EARLY_COROUTINES, __NORMAL_COROUTINES, __LATE_COROUTINE
+        Timer.__START_TIME = Timer.get_current_time()
+        Timer.__LAST_TIME = Timer.__START_TIME
 
-        __START_TIME = Timer.get_current_time()
-        __LAST_TIME = __START_TIME
+        Timer.__DT = 0.
+        Timer.__FRAME_COUNT = 0
 
-        __DT = 0.
-        __FRAME_COUNT = 0
-
-        __EARLY_COROUTINES = []
-        __NORMAL_COROUTINES = []
-        __LATE_COROUTINE = []
+        Timer.__EARLY_COROUTINES = []
+        Timer.__NORMAL_COROUTINES = []
+        Timer.__LATE_COROUTINE = []
 
     @staticmethod
     def evaluate():
-        global __START_TIME, __LAST_TIME, __DT, __FRAME_COUNT
-
         curr = Timer.get_current_time()
 
-        __DT = (curr - __LAST_TIME)
-        __LAST_TIME = curr
+        Timer.__DT = (curr - Timer.__LAST_TIME)
+        Timer.__LAST_TIME = curr
 
-        __FRAME_COUNT += 1
+        Timer.__FRAME_COUNT += 1
 
     @staticmethod
     def start_coroutine(coroutine, order: CoroutineOrder = CoroutineOrder.NORMAL) -> Coroutine:
         cor = Coroutine(coroutine, order)
 
         if order == CoroutineOrder.EARLY:
-            global __EARLY_COROUTINES
-            __EARLY_COROUTINES.append(cor)
+            Timer.__EARLY_COROUTINES.append(cor)
         elif order == CoroutineOrder.NORMAL:
-            global __NORMAL_COROUTINES
-            __NORMAL_COROUTINES.append(cor)
+            Timer.__NORMAL_COROUTINES.append(cor)
         elif order == CoroutineOrder.LATE:
-            global __LATE_COROUTINE
-            __LATE_COROUTINE.append(cor)
+            Timer.__LATE_COROUTINE.append(cor)
 
         return cor
 
     @staticmethod
     def stop_coroutine(coroutine: Coroutine):
         if coroutine.order == CoroutineOrder.EARLY:
-            global __EARLY_COROUTINES
-            __EARLY_COROUTINES.remove(coroutine)
+            Timer.__EARLY_COROUTINES.remove(coroutine)
 
         if coroutine.order == CoroutineOrder.NORMAL:
-            global __NORMAL_COROUTINES
-            __NORMAL_COROUTINES.remove(coroutine)
+            Timer.__NORMAL_COROUTINES.remove(coroutine)
 
         if coroutine.order == CoroutineOrder.LATE:
-            global __LATE_COROUTINE
-            __LATE_COROUTINE.remove(coroutine)
+            Timer.__LATE_COROUTINE.remove(coroutine)
 
     @staticmethod
     def __do_coroutines__(coroutines: List[Coroutine]):
@@ -106,23 +95,19 @@ class Timer:
 
     @staticmethod
     def do_early_coroutines():
-        global __EARLY_COROUTINES
-        Timer.__do_coroutines__(__EARLY_COROUTINES)
+        Timer.__do_coroutines__(Timer.__EARLY_COROUTINES)
 
     @staticmethod
     def do_coroutines():
-        global __NORMAL_COROUTINES
-        Timer.__do_coroutines__(__NORMAL_COROUTINES)
+        Timer.__do_coroutines__(Timer.__NORMAL_COROUTINES)
 
     @staticmethod
     def do_late_coroutines():
-        global __LATE_COROUTINE
-        Timer.__do_coroutines__(__LATE_COROUTINE)
+        Timer.__do_coroutines__(Timer.__LATE_COROUTINE)
 
     @staticmethod
     def get_delta_time():
-        global __DT
-        return __DT
+        return Timer.__DT
 
     @staticmethod
     def get_current_time():
@@ -130,8 +115,7 @@ class Timer:
 
     @staticmethod
     def get_time_since_start():
-        global __START_TIME
-        return Timer.get_elapsed(__START_TIME)
+        return Timer.get_elapsed(Timer.__START_TIME)
 
     @staticmethod
     def get_elapsed(time: float):
@@ -139,8 +123,7 @@ class Timer:
 
     @staticmethod
     def get_frame_count():
-        global __FRAME_COUNT
-        return __FRAME_COUNT
+        return Timer.__FRAME_COUNT
 
     @staticmethod
     def wait_for_frame(frame: int):

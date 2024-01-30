@@ -24,6 +24,9 @@ class SwerveModule:
         pass
 
     def update(self, horizontal: float, vertical: float, rotation: float):
+        if not self.steering.is_in_controll():
+            self.steering.start_control()
+
         # Compute the translation and rotation vectors
         trans = Vector2(horizontal, vertical)
         rot = self.rotation_vector * rotation
@@ -35,14 +38,18 @@ class SwerveModule:
             return
 
         forward = Polar(self.get_steer_angle(), 1)
-        forward_vec = forward.to_vector()
+        if self.flipped:
+            forward.rotate(math.pi)
+            sum_vec *= -1
+
+        #forward_vec = forward.to_vector()
+        #if forward_vec.dot(sum_vec) < 0:
+        #    self.flipped = not self.flipped
 
         sum_polar = Polar.from_vector(sum_vec)
-        if forward_vec.dot(sum_vec) < 0:
-            sum_polar.rotate(math.pi)
-
         self.steering.set(sum_polar.theta)
         self.drive.set(sum_polar.radius)
+        #self.drive.set(-sum_polar.radius if self.flipped else sum_polar.radius)
 
     def get_steer_angle(self) -> float:
         return self.steering.get_angle()
@@ -100,3 +107,5 @@ class SwerveDrive(Component):
             builder.addDoubleProperty(f'{i}/SteerTargetAngle', curr_mod.get_steer_target_angle, lambda v: None)
             builder.addDoubleProperty(f'{i}/DriveSpeed', curr_mod.get_drive_velocity, lambda v: None)
             builder.addBooleanProperty(f'{i}/Flipped', curr_mod.is_flipped, lambda v: None)
+
+
