@@ -46,9 +46,7 @@ class Timer:
         Timer.__DT = 0.
         Timer.__FRAME_COUNT = 0
 
-        Timer.__EARLY_COROUTINES = []
-        Timer.__NORMAL_COROUTINES = []
-        Timer.__LATE_COROUTINE = []
+        Timer.stop_all_coroutine()
 
     @staticmethod
     def evaluate():
@@ -82,6 +80,23 @@ class Timer:
 
         if coroutine.order == CoroutineOrder.LATE:
             Timer.__LATE_COROUTINE.remove(coroutine)
+
+        coroutine.is_done = True
+
+    @staticmethod
+    def stop_all_coroutine():
+        for cor in Timer.__EARLY_COROUTINES:
+            cor.is_done = True
+
+        for cor in Timer.__NORMAL_COROUTINES:
+            cor.is_done = True
+
+        for cor in Timer.__LATE_COROUTINE:
+            cor.is_done = True
+
+        Timer.__EARLY_COROUTINES.clear()
+        Timer.__NORMAL_COROUTINES.clear()
+        Timer.__LATE_COROUTINE.clear()
 
     @staticmethod
     def __do_coroutines__(coroutines: List[Coroutine]):

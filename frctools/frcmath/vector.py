@@ -139,6 +139,22 @@ class Vector2(VectorBase):
     def angle(self, other: 'Vector2') -> float:
         return math.acos(self.dot(other) / (self.magnitude() * other.magnitude()))
 
+    def rotate(self, theta) -> 'Vector2':
+        cos_t = math.cos(theta)
+        sin_t = math.sin(theta)
+
+        return Vector2(self.x * cos_t - self.y * sin_t,
+                       self.x * sin_t + self.y * cos_t)
+
+    # Constants
+    @staticmethod
+    def zero() -> 'Vector2':
+        return Vector2(0, 0)
+
+    @staticmethod
+    def one() -> 'Vector2':
+        return Vector2(1, 1)
+
     # --- Operators Overloads ---
 
     def __getitem__(self, item):

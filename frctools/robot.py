@@ -59,9 +59,12 @@ class RobotBase(wpilib.TimedRobot):
         Timer.do_early_coroutines()
 
         for name, comp in self.__components.items():
-            comp.update()
-            if action is not None:
-                action(comp)
+            try:
+                comp.update()
+                if action is not None:
+                    action(comp)
+            except Exception as e:
+                print(e)
 
         Timer.do_coroutines()
         Timer.do_late_coroutines()
