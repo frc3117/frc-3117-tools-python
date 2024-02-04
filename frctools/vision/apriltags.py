@@ -1,5 +1,6 @@
 from frctools.frcmath import Vector3, Quaternion
 from .camera import CameraThread
+from typing import List
 
 
 class AprilTag:
@@ -51,22 +52,30 @@ try:
     import pupil_apriltags as apriltag
 
     class AprilTagCamera:
-        def __init__(self, camera: CameraThread, tag_size: float, focal_length: float, camera_matrix: np.ndarray):
-            self.__camera = camera
-            self.__frame_gen = camera.get_frame_generator()
-
+        def __init__(self, tag_size: float, focal_length: float, camera_matrix: np.ndarray):
             self.__detector = apriltag.Detector(families='tag36h11')
 
             self.__tag_size = tag_size
             self.__focal_length = focal_length
             self.__camera_matrix = camera_matrix
 
-        def look_for_tags(self):
-            frame = next(self.__frame_gen)
-            if frame is None:
-                return None
+        def look_for_tags(self, frame) -> List[apriltag.Detection]:
+            gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+            results = self.__detector.detect(gray)
 
-            frame_id, frame = frame
+            return results
+
+        @staticmethod
+        def draw_tags(frame, tags: List[apriltag.Detection]):
+            out_img = frame.copy()
+            for tag in tags:
+                cv.polylines(out_img, [np.array(tag.corners, np.int32)], True, (0, 255, 0), 2)
+                cv.putText(out_img, str(tag.tag_id), (int(tag.corners[0][0]), int(tag.corners[0][1])), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv.LINE_AA)
+
+            return out_img
+
+
+
 except ImportError:
     class AprilTagCamera:
         def __init__(self, *args, **kwargs):
