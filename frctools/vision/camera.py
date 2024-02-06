@@ -83,6 +83,8 @@ try:
                         self.frame_id += 1
                     else:
                         break
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except Exception as e:
                 print(e)
             finally:
