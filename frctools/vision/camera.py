@@ -58,7 +58,28 @@ class BaseCameraThread:
 
 
 try:
+    import os
     import cv2 as cv
+
+
+    class CameraCalibrator:
+        def __init__(self, imgs: list):
+            self.__imgs = imgs
+            self.__win = None
+            self.__img_label = None
+
+        def calibrate(self):
+            ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(self.__imgs, (9, 6), None, None)
+            return mtx, dist
+
+        @staticmethod
+        def create_from_folder(folder: str):
+            imgs = []
+            for file in os.listdir(folder):
+                if file.endswith('.jpg') or file.endswith('.png'):
+                    imgs.append(cv.imread(f'{folder}/{file}'))
+            return CameraCalibrator(imgs)
+
 
     class CameraThread(BaseCameraThread):
         def __init__(self, device_id: int = 0, resolution: tuple = (640, 480), color_mode: str = 'rgb'):
@@ -107,6 +128,10 @@ try:
             pass
 
 except ImportError:
+    class CameraCalibrator:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("OpenCV is not installed")
+
     class CameraThread:
         def __init__(self, *args, **kwargs):
             raise ImportError("OpenCV is not installed")
