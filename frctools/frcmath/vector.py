@@ -16,23 +16,55 @@ def __get_vec_from_other__(length: int, other) -> List[float]:
 
 
 class VectorBase:
+    def __init__(self, *args):
+        self.__list = list(args)
+
+        self.__sqr_magnitude = 0.
+        self.__magnitude = 0.
+
+        self.__refresh_magnitude__()
+
     # --- Vector Methods ---
 
-    def sqr_magnitude(self) -> float:
+    def __refresh_sqr_magnitude__(self):
         mag = 0
         for val in self:
             mag += math.pow(val, 2)
 
-        return mag
+        self.__sqr_magnitude = mag
 
+    @property
+    def sqr_magnitude(self) -> float:
+        return self.__sqr_magnitude
+
+    def __refresh_magnitude__(self):
+        self.__refresh_sqr_magnitude__()
+        self.__magnitude = math.sqrt(self.__sqr_magnitude)
+
+    @property
     def magnitude(self) -> float:
-        return math.sqrt(self.sqr_magnitude())
+        return self.__magnitude
+
+    def normalize(self):
+        for i in range(len(self)):
+            self[i] /= self.magnitude
+
+        self.__magnitude = 1.
+        self.__sqr_magnitude = 1.
+
+        return self
 
     def normalized(self):
-        return self / self.magnitude()
+        copy = self.copy()
+        copy.normalize()
+
+        return copy
 
     def lerp(self, other, t: float):
         return self + (other - self) * t
+
+    def copy(self):
+        return self.__class__(*iter(self))
 
     @classmethod
     def from_tuple(cls, tup):
@@ -107,14 +139,13 @@ class VectorBase:
         return self
 
     def __getitem__(self, item):
-        raise NotImplementedError()
+        return self.__list[item]
 
     def __setitem__(self, key, value):
-        raise NotImplementedError()
+        self.__list[key] = value
 
     def __iter__(self):
-        for i in range(len(self)):
-            yield self[i]
+        yield from self.__list
 
     def __len__(self):
         raise NotImplementedError()
@@ -128,16 +159,15 @@ class VectorBase:
 
 
 class Vector2(VectorBase):
-    def __init__(self, x: float = 0, y: float = 0):
-        self.x = float(x)
-        self.y = float(y)
+    def __init__(self, x: float = 0., y: float = 0.):
+        super().__init__(float(x), float(y))
 
     # --- Vector Methods ---
     def dot(self, other: 'Vector2') -> float:
         return self.x * other.x + self.y * other.y
 
     def angle(self, other: 'Vector2') -> float:
-        return math.acos(self.dot(other) / (self.magnitude() * other.magnitude()))
+        return math.acos(self.dot(other) / (self.magnitude * other.magnitude))
 
     def rotate(self, theta) -> 'Vector2':
         cos_t = math.cos(theta)
@@ -157,34 +187,31 @@ class Vector2(VectorBase):
 
     # --- Operators Overloads ---
 
-    def __getitem__(self, item):
-        if isinstance(item, slice):
-            return [self[i] for i in range(len(self))[item]]
+    @property
+    def x(self) -> float:
+        return self[0]
 
-        if item == 0:
-            return self.x
-        elif item == 1:
-            return self.y
+    @x.setter
+    def x(self, value: float):
+        self[0] = value
+        self.__refresh_magnitude__()
 
-        raise IndexError(f"Index {item} out of range for Vector2.")
+    @property
+    def y(self) -> float:
+        return self[1]
 
-    def __setitem__(self, key, value):
-        if key == 0:
-            self.x = value
-        elif key == 1:
-            self.y = value
-        else:
-            raise IndexError(f"Index {key} out of range for Vector2.")
+    @y.setter
+    def y(self, value: float):
+        self[1] = value
+        self.__refresh_magnitude__()
 
     def __len__(self):
         return 2
 
 
 class Vector3(VectorBase):
-    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
-        self.x = float(x)
-        self.y = float(y)
-        self.z = float(z)
+    def __init__(self, x: float = 0., y: float = 0., z: float = 0.):
+        super().__init__(float(x), float(y), float(z))
 
     # --- Vector Methods ---
     def dot(self, other: 'Vector3') -> float:
@@ -201,29 +228,32 @@ class Vector3(VectorBase):
         return math.acos(self.dot(other) / (self.magnitude() * other.magnitude()))
 
     # --- Operators Overloads ---
+    @property
+    def x(self) -> float:
+        return self[0]
 
-    def __getitem__(self, item):
-        if isinstance(item, slice):
-            return [self[i] for i in range(len(self))[item]]
+    @x.setter
+    def x(self, value: float):
+        self[0] = value
+        self.__refresh_magnitude__()
 
-        if item == 0:
-            return self.x
-        elif item == 1:
-            return self.y
-        elif item == 2:
-            return self.z
+    @property
+    def y(self) -> float:
+        return self[1]
 
-        raise IndexError(f"Index {item} out of range for Vector3.")
+    @y.setter
+    def y(self, value: float):
+        self[1] = value
+        self.__refresh_magnitude__()
 
-    def __setitem__(self, key, value):
-        if key == 0:
-            self.x = value
-        elif key == 1:
-            self.y = value
-        elif key == 2:
-            self.z = value
-        else:
-            raise IndexError(f"Index {key} out of range for Vector3.")
+    @property
+    def z(self) -> float:
+        return self[2]
+
+    @z.setter
+    def z(self, value: float):
+        self[2] = value
+        self.__refresh_magnitude__()
 
     def __len__(self):
         return 3
@@ -231,6 +261,8 @@ class Vector3(VectorBase):
 
 class Vector4(VectorBase):
     def __init__(self, x: float = 0, y: float = 0, z: float = 0, w: float = 0):
+        super().__init__()
+        
         self.x = float(x)
         self.y = float(y)
         self.z = float(z)
@@ -239,40 +271,14 @@ class Vector4(VectorBase):
     # --- Vector Methods ---
 
     # --- Operators Overloads ---
-
-    def __getitem__(self, item):
-        if isinstance(item, slice):
-            return [self[i] for i in range(len(self))[item]]
-
-        if item == 0:
-            return self.x
-        elif item == 1:
-            return self.y
-        elif item == 2:
-            return self.z
-        elif item == 3:
-            return self.w
-
-        raise IndexError(f"Index {item} out of range for Vector4.")
-
-    def __setitem__(self, key, value):
-        if key == 0:
-            self.x = value
-        elif key == 1:
-            self.y = value
-        elif key == 2:
-            self.z = value
-        elif key == 3:
-            self.w = value
-        else:
-            raise IndexError(f"Index {key} out of range for Vector4.")
-
     def __len__(self):
         return 4
 
 
 class Quaternion(VectorBase):
     def __init__(self, x: float, y: float, z: float, w: float):
+        super().__init__()
+
         self.x = x
         self.y = y
         self.z = z
