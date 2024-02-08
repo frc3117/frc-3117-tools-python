@@ -1,4 +1,5 @@
 from typing import TypeVar
+#from .vector import Vector2
 
 import math
 import sys
@@ -39,8 +40,16 @@ def angle_normalize(angle: float):
     return repeat(angle, math.tau)
 
 
-def lerp(a: T, b: T, t: float) -> T:
+def lerp(a: T, b: T, t: float) -> float:
     return (1 - t) * a + t * b
+
+
+def inverse_lerp(a: T, b: T, value: T) -> float:
+    return (value - a) / (b - a)
+
+
+def lerp_angle(a: T, b: T, t: float) -> float:
+    return angle_normalize((1 - t) * a + t * b)
 
 
 def delta_angle(current: float, target: float) -> float:
@@ -68,3 +77,10 @@ def get_next_power_of(num: float, power: float) -> float:
 
 def get_previous_power_of(num: float, power: float) -> float:
     return __get_power_of__(num, power, math.floor)
+
+
+def bezier(p0, p1, control, t: float):
+    x = (1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * control[0] + t ** 2 * p1[0]
+    y = (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * control[1] + t ** 2 * p1[1]
+
+    return x, y
