@@ -1,8 +1,8 @@
 try:
     from frctools.frcmath import clamp, angle_normalize, Vector2, repeat, bezier
     from frctools.controll import PathPlanning
-    from frctools.tools.widget.pygame import DragablePoint, Text
-    from frctools.tools.resources import ResourcesLoader
+    from frctools.visualization.widget.pygame import DragablePoint, Text
+    from frctools.visualization.resources import ResourcesLoader
 
     import math
     import pygame
@@ -210,7 +210,7 @@ try:
 
             pygame.quit()
 
-except ImportError:
+except ImportError as e:
     class DragablePoint:
         def __init__(self):
             raise ImportError('Pygame is not installed')

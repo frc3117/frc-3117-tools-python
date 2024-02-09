@@ -26,6 +26,18 @@ def resize_img(img, width, height):
     return resized_img
 
 
+def set_button_color(button: Button, default: str, hover: str, clicked: str):
+    def on_enter(e):
+        e.widget.configure(bg=hover)
+
+    def on_exit(e):
+        e.widget.configure(bg=default)
+
+    button.configure(activebackground=clicked)
+    button.bind('<Enter>', on_enter)
+    button.bind('<Leave>', on_exit)
+
+
 class CameraCalibratorVisualization:
     def __init__(self):
         self.__win = Tk()
@@ -41,6 +53,15 @@ class CameraCalibratorVisualization:
         self.__img_preview = Label(self.__right_frame)
         self.__img_preview.pack(anchor="center", expand=True, fill="both")
         self.__img_preview.bind("<Configure>", self.__dyn_resize_preview__)
+
+        self.__take_picture_button = Button(self.__right_frame,
+                                            text='Take Picture',
+                                            command=lambda: print('pressed'),
+                                            activebackground='grey',
+                                            background='white'
+                                            )
+        self.__take_picture_button.place(width=80, height=60, relx=0.5, rely=1, y=-10, anchor='s')
+        set_button_color(self.__take_picture_button, 'white', 'green', 'grey')
 
         self.__frame_width = 0
         self.__frame_height = 0
