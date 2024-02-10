@@ -42,7 +42,7 @@ class CameraCalibratorVisualization:
     def __init__(self):
         self.__win = Tk()
         self.__win.title("Camera Calibrator")
-        self.__win.geometry("800x600")
+        self.__win.geometry("1200x800")
 
         self.__left_frame = Frame(self.__win, bg="blue")
         self.__left_frame.place(relheight=1, relwidth=0.20, anchor="nw")
@@ -51,7 +51,7 @@ class CameraCalibratorVisualization:
         self.__right_frame.place(relheight=1, relwidth=0.80, relx=0.20, anchor="nw")
 
         self.__img_preview = Label(self.__right_frame)
-        self.__img_preview.pack(anchor="center", expand=True, fill="both")
+        self.__img_preview.pack(anchor="center", expand=True, fill="both", )
         self.__img_preview.bind("<Configure>", self.__dyn_resize_preview__)
 
         self.__take_picture_button = Button(self.__right_frame,
@@ -61,7 +61,7 @@ class CameraCalibratorVisualization:
                                             background='white'
                                             )
         self.__take_picture_button.place(width=80, height=60, relx=0.5, rely=1, y=-10, anchor='s')
-        set_button_color(self.__take_picture_button, 'white', 'green', 'grey')
+        set_button_color(self.__take_picture_button, '#e3e3e3', '#d1d1d1', '#8a8a8a')
 
         self.__frame_width = 0
         self.__frame_height = 0

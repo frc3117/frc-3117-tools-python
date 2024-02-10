@@ -28,6 +28,7 @@ class BaseCameraThread:
 
     def get_frame_generator(self):
         last_frame_id = -1
+        self.__running = True
         while self.__running:
             if last_frame_id == self.__frame_id:
                 yield None
@@ -90,7 +91,10 @@ try:
             self.__color_mode = color_mode
 
         def __loop__(self):
-            cap = cv.VideoCapture(self.__device_id)
+            if hasattr(self.__device_id, '__call__'):
+                cap = self.__device_id()
+            else:
+                cap = cv.VideoCapture(self.__device_id)
 
             try:
                 #cap.set(cv.CAP_PROP_FRAME_WIDTH, self.__resolution[0])
