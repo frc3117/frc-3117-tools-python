@@ -19,8 +19,8 @@ setup(
     package_dir={'frctools': './frctools'},
     packages=find_packages(),
     install_requires=[
-        'robotpy',
-        'robotpy[sim]',
+        #'robotpy',
+        #'robotpy[sim]',
     ],
     python_requires='>=3.7, <4',
 )

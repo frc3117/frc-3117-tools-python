@@ -1,5 +1,12 @@
 import threading
 
+from typing import Tuple
+
+
+class CameraNotRunningError(Exception):
+    def __init__(self, cam_name: str = 'cam'):
+        super().__init__(f'{cam_name} is not running')
+
 
 class BaseCameraThread:
     def __init__(self):
@@ -62,6 +69,33 @@ try:
     import os
     import cv2 as cv
 
+    try:
+        from picamera2 import Picamera2
+
+        class Picamera2Wrapper:
+            def __init__(self, device_id: int = 0):
+                self.picam2 = Picamera2(device_id)
+
+                config = self.picam2.create_preview_configuration(main={'size': (1456, 1088), 'format': 'RGB888'})
+                self.picam2.configure(config)
+                self.picam2.start()
+
+            def read(self):
+                try:
+                    frame = self.picam2.capture_array('main')
+                    return True, frame
+                except Exception as e:
+                    print(e)
+
+                return False, None
+
+            def release(self):
+                self.picam2.stop()
+    except ImportError:
+        class Picamera2Wrapper:
+            def __init__(self, *args, **kwargs):
+                raise ImportError("picamera2 is not installed")
+
 
     class CameraCalibrator:
         def __init__(self, imgs: list):
@@ -83,24 +117,15 @@ try:
 
 
     class CameraThread(BaseCameraThread):
-        def __init__(self, device_id: int = 0, resolution: tuple = (640, 480), color_mode: str = 'rgb'):
+        def __init__(self, device_constructor):
             super().__init__()
 
-            self.__device_id = device_id
-            self.__resolution = resolution
-            self.__color_mode = color_mode
+            self.__device_constructor = device_constructor
 
         def __loop__(self):
-            if hasattr(self.__device_id, '__call__'):
-                cap = self.__device_id()
-            else:
-                cap = cv.VideoCapture(self.__device_id)
+            cap = self.__device_constructor()
 
             try:
-                #cap.set(cv.CAP_PROP_FRAME_WIDTH, self.__resolution[0])
-                #cap.set(cv.CAP_PROP_FRAME_HEIGHT, self.__resolution[1])
-                #cap.set(cv.CAP_PROP_MODE, self.__get_color_mode__())
-
                 while self.is_running:
                     ret, frame = cap.read()
                     if ret:
@@ -116,13 +141,23 @@ try:
                 cap.release()
                 self.stop()
 
-        def __get_color_mode__(self):
-            if self.__color_mode == 'rgb':
-                return cv.COLOR_BGR2RGB
-            elif self.__color_mode == 'hsv':
-                return cv.CAP_MODE_HSV
-            elif self.__color_mode == 'gray':
-                return cv.CAP_MODE_GRAY
+        @staticmethod
+        def create_opencv(device_id: int = 0, resolution: Tuple[int, int] = (640, 480)):
+            def cv_constructor():
+                cap = cv.VideoCapture(device_id)
+                cap.set(cv.CAP_PROP_FRAME_WIDTH, resolution[0])
+                cap.set(cv.CAP_PROP_FRAME_HEIGHT, resolution[1])
+                return cap
+
+            return CameraThread(cv_constructor)
+
+        @staticmethod
+        def create_picamera(device_id: int = 0, resolution: Tuple[int, int] = (640, 480)):
+            def picamera_constructor():
+                cap = Picamera2Wrapper(device_id)
+                return cap
+
+            return CameraThread(picamera_constructor)
 
     class NetworkCameraThread(BaseCameraThread):
         def __init__(self):
