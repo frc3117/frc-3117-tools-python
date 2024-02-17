@@ -21,9 +21,24 @@ def start_cam_calibration():
     calibrator.run()
 
 
+def start_swerve_visualization():
+    from frctools.frcmath import Vector2
+    from frctools.visualization import SwerveVisualization
+
+    swerve = SwerveVisualization([
+        Vector2(0.256, 0.312),
+        Vector2(0.256, -0.312),
+        Vector2(-0.256, -0.312),
+        Vector2(-0.256, 0.312)
+    ])
+
+    swerve.run()
+
+
 ENTRYPOINTS = {
     'pathplanning': start_path_planning,
-    'camcalibration': start_cam_calibration
+    'camcalibration': start_cam_calibration,
+    'swerve': start_swerve_visualization
 }
 
 

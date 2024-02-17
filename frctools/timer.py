@@ -71,6 +71,13 @@ class Timer:
         return cor
 
     @staticmethod
+    def start_coroutine_if_stopped(coroutine, ref_coroutine: Coroutine, order: CoroutineOrder = CoroutineOrder.NORMAL) -> Coroutine:
+        if ref_coroutine is None or ref_coroutine.is_done:
+            return Timer.start_coroutine(coroutine(), order)
+
+        return ref_coroutine
+
+    @staticmethod
     def stop_coroutine(coroutine: Coroutine):
         if coroutine.order == CoroutineOrder.EARLY:
             Timer.__EARLY_COROUTINES.remove(coroutine)

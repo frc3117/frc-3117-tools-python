@@ -48,6 +48,7 @@ class RobotBase(wpilib.TimedRobot):
 
     def add_component(self, name: str, component: Component):
         self.__components[name] = component
+        wpilib.SmartDashboard.putData(name, component)
 
     def __component_init__(self, action):
         for name, comp in self.__components.items():

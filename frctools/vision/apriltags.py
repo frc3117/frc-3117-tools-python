@@ -73,9 +73,6 @@ try:
                 cv.putText(out_img, str(tag.tag_id), (int(tag.corners[0][0]), int(tag.corners[0][1])), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv.LINE_AA)
 
             return out_img
-
-
-
 except ImportError:
     class AprilTagCamera:
         def __init__(self, *args, **kwargs):
