@@ -1,4 +1,5 @@
 from frctools import Timer
+from frctools.frcmath import clamp
 
 import wpiutil
 
@@ -20,6 +21,8 @@ class PID(wpiutil.Sendable):
         derivative = (self.__previous_error - error) / dt
         self.__integral += error * dt
         self.__previous_error = error
+
+        self.__integral = clamp(self.__integral, -1, 1)
 
         return self.kp * error + self.ki * self.__integral + self.kd * derivative
 

@@ -76,6 +76,8 @@ class Input:
         self.cutoff = 0.5
         self.click_value = 1.0
 
+        self.__debounce = False
+
     def get(self) -> Union[bool, float]:
         if self.mode == Input.BUTTON_MODE:
             return self.__get_button__()
@@ -83,6 +85,18 @@ class Input:
             return self.__get_axis__()
         elif self.mode == Input.COMPOSITE_AXIS_MODE:
             return self.__get_composite_axis()
+
+    def get_button_down(self) -> bool:
+        button_val = self.__get_button__()
+        if not button_val:
+            self.__debounce = False
+            return False
+
+        if button_val and not self.__debounce:
+            return True
+
+        return False
+
 
     def __get_button__(self) -> bool:
         if self.__irl_mode__ == Input.BUTTON_MODE:
