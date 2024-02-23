@@ -8,9 +8,12 @@ import wpilib
 
 
 class RobotBase(wpilib.TimedRobot):
+    __INSTANCE__: 'RobotBase' = None
+
     def __init__(self):
         super().__init__()
 
+        RobotBase.__INSTANCE__ = self
         self.__components: Dict[str, Component] = {}
 
     def robotInit(self):
@@ -49,6 +52,10 @@ class RobotBase(wpilib.TimedRobot):
 
     def add_component(self, name: str, component: Component):
         self.__components[name] = component
+        wpilib.SmartDashboard.putData(name, component)
+
+    def get_component(self, name: str):
+        return self.__components[name]
 
     def __component_init__(self, action):
         for name, comp in self.__components.items():
@@ -69,3 +76,7 @@ class RobotBase(wpilib.TimedRobot):
 
         Timer.do_coroutines()
         Timer.do_late_coroutines()
+
+    @staticmethod
+    def instance():
+        return RobotBase.__INSTANCE__

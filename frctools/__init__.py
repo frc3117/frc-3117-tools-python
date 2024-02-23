@@ -2,11 +2,9 @@ from .timer import Timer, CoroutineOrder, Coroutine
 from .component import Component
 from .robot import RobotBase
 from .servo import Servo
+from .motors import MotorGroup
 
-from . import drivetrain
-from . import input
-from . import frcmath
-from . import controll
+from . import drivetrain, input, frcmath, controll, sensor
 
 
 __all__ = [
@@ -16,8 +14,9 @@ __all__ = [
     'Component',
     'RobotBase',
     'Servo',
+    'MotorGroup',
     'drivetrain',
     'input',
     'frcmath',
-    'controll'
+    'controll',
 ]

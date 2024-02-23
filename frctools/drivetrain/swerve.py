@@ -107,6 +107,9 @@ class SwerveModule:
 
             yield None
 
+    def get_stee_rangle_raw(self):
+        return self.steering_encoder.get()
+
     def get_steer_angle(self) -> float:
         encoder = repeat(self.steering_encoder.get() - self.steering_offset, 1)
         return lerp(math.pi, -math.pi, encoder)
@@ -189,9 +192,10 @@ class SwerveDrive(Component):
     def zero_heading(self):
         self.set_current_heading(0.)
 
-    def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
+    def initSendable(self, builder: wpiutil.SendableBuilder):
         for i, mod in enumerate(self.modules):
             curr_mod = mod
+            builder.addDoubleProperty(f'{i}/RawSteerAngle', curr_mod.get_stee_rangle_raw, lambda v: None)
             builder.addDoubleProperty(f'{i}/SteerAngle', curr_mod.get_steer_angle, lambda v: None)
             builder.addDoubleProperty(f'{i}/SteerTargetAngle', curr_mod.get_steer_target_angle, lambda v: None)
             builder.addDoubleProperty(f'{i}/DriveSpeed', curr_mod.get_drive_velocity, lambda v: None)

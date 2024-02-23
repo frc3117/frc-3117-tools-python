@@ -19,3 +19,6 @@ class Component(wpiutil.Sendable):
 
     def update(self):
         pass
+
+    def initSendable(self, builder: wpiutil.SendableBuilder):
+        pass

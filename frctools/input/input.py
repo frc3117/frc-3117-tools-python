@@ -6,16 +6,16 @@ from frctools import frcmath, Timer, CoroutineOrder
 
 
 class XboxControllerInput(str, Enum):
-    A = 'button.0'
-    B = 'button.1'
-    X = 'button.2'
-    Y = 'button.3'
-    LB = 'button.4'
-    RB = 'button.5'
-    BACK = 'button.6'
-    START = 'button.7'
-    LEFT_JOYSTICK_BUTTON = 'button.8'
-    RIGHT_JOYSTICK_BUTTON = 'button.9'
+    A = 'button.1'
+    B = 'button.2'
+    X = 'button.3'
+    Y = 'button.4'
+    LB = 'button.5'
+    RB = 'button.6'
+    BACK = 'button.7'
+    START = 'button.8'
+    LEFT_JOYSTICK_BUTTON = 'button.9'
+    RIGHT_JOYSTICK_BUTTON = 'button.10'
 
     LEFT_JOYSTICK_X = 'axis.0'
     LEFT_JOYSTICK_Y = 'axis.1'
