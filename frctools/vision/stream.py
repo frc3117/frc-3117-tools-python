@@ -1,4 +1,5 @@
 import threading
+import time
 
 
 try:
@@ -37,6 +38,9 @@ try:
                     if self.__frame_id != self.__sent_frame_id:
                         source.putFrame(self.__frame)
                         self.__sent_frame_id = self.__frame_id
+                    time.sleep(0.0001)
+
+
             except Exception as e:
                 print(e)
             finally:

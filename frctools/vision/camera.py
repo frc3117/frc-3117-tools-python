@@ -76,7 +76,7 @@ try:
             def __init__(self, device_id: int = 0):
                 self.picam2 = Picamera2(device_id)
 
-                config = self.picam2.create_preview_configuration(main={'size': (1456, 1088), 'format': 'RGB888'})
+                config = self.picam2.create_preview_configuration(main={'size': (1456, 1088)})
                 self.picam2.configure(config)
                 self.picam2.start()
 

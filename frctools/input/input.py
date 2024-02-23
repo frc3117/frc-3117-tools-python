@@ -2,7 +2,7 @@ from typing import Dict, Union
 from enum import Enum
 from wpilib import Joystick
 
-from frctools import frcmath
+from frctools import frcmath, Timer, CoroutineOrder
 
 
 class XboxControllerInput(str, Enum):
@@ -25,6 +25,17 @@ class XboxControllerInput(str, Enum):
     RIGHT_JOYSTICK_Y = 'axis.5'
 
 
+class PowerTransform:
+    def __init__(self, power: float):
+        self.power = max(power, 0)
+
+    def evaluate(self, value: float) -> float:
+        return value ** self.power * (1. if value >= 0 else -1.)
+
+    def __call__(self, value: float) -> float:
+        return self.evaluate(value)
+
+
 class Input:
     BUTTON_MODE = 0
     AXIS_MODE = 1
@@ -40,7 +51,9 @@ class Input:
                  deadzone: float = 0.1,
                  mode: int = 1,
                  positive: 'Input' = None,
-                 negative: 'Input' = None):
+                 negative: 'Input' = None,
+                 axis_filter=None,
+                 axis_transform=None):
         self.name = name
         self.joystick_id = joystick_id
         self.mode = mode
@@ -76,13 +89,40 @@ class Input:
         self.cutoff = 0.5
         self.click_value = 1.0
 
+        self.__filter = axis_filter
+        self.__transform = axis_transform
+
+        if self.mode == Input.AXIS_MODE or self.mode == Input.COMPOSITE_AXIS_MODE:
+            self.__last_value = 0.
+            self.__current_value = 0.
+        elif self.mode == Input.BUTTON_MODE:
+            self.__last_value = False
+            self.__current_value = False
+
     def get(self) -> Union[bool, float]:
-        if self.mode == Input.BUTTON_MODE:
-            return self.__get_button__()
-        elif self.mode == Input.AXIS_MODE:
-            return self.__get_axis__()
-        elif self.mode == Input.COMPOSITE_AXIS_MODE:
-            return self.__get_composite_axis()
+        return self.__current_value
+
+    def get_up(self) -> bool:
+        return self.__last_value and not self.__current_value
+
+    def get_down(self) -> bool:
+        return not self.__last_value and self.__current_value
+
+    def set_inverted(self, inverted: bool) -> 'Input':
+        self.invert = inverted
+        return self
+
+    def set_deadzone(self, deadzone: float) -> 'Input':
+        self.deadzone = deadzone
+        return self
+
+    def set_filter(self, axis_filter) -> 'Input':
+        self.__filter = axis_filter
+        return self
+
+    def set_transform(self, axis_transform) -> 'Input':
+        self.__transform = axis_transform
+        return self
 
     def __get_button__(self) -> bool:
         if self.__irl_mode__ == Input.BUTTON_MODE:
@@ -97,41 +137,82 @@ class Input:
         if self.__irl_mode__ == Input.AXIS_MODE:
             value = Input.__joysticks__[self.joystick_id].getRawAxis(self.input_id)
             value = frcmath.deadzone(value, self.deadzone)
+            value = -value if self.invert else value
+        else:
+            value = Input.__joysticks__[self.joystick_id].getRawButton(self.input_id)
+            value = value if value != self.invert else 0.
 
-            return -value if self.invert else value
+        if self.__filter is not None:
+            value = self.__filter(value)
+        if self.__transform is not None:
+            value = self.__transform(value)
 
-        button = Input.__joysticks__[self.joystick_id].getRawButton(self.input_id)
-        return button if button != self.invert else 0.
+        return value
 
-    def __get_composite_axis(self) -> float:
-        return self.positive.get() - self.negative.get()
+    def __get_composite_axis__(self) -> float:
+        value = self.positive.get() - self.negative.get()
+
+        if self.__filter is not None:
+            value = self.__filter(value)
+        if self.__transform is not None:
+            value = self.__transform(value)
+
+        return value
+
+    @staticmethod
+    def __input_coroutine__():
+        while True:
+            for inp in Input.__inputs__.values():
+                inp.__last_value = inp.__current_value
+
+                if inp.mode == Input.AXIS_MODE:
+                    inp.__current_value = inp.__get_axis__()
+                elif inp.mode == Input.BUTTON_MODE:
+                    inp.__current_value = inp.__get_button__()
+                elif inp.mode == Input.COMPOSITE_AXIS_MODE:
+                    inp.__current_value = inp.__get_composite_axis__()
 
     @classmethod
-    def add_button(cls, name: str, joystick_id: int, input_id: str) -> 'Input':
+    def add_button(cls,
+                   name: str,
+                   joystick_id: int,
+                   input_id: str) -> 'Input':
         if name in cls.__inputs__:
             raise KeyError(f'Input "{name}" already exists.')
 
-        button = cls(name, joystick_id, input_id, cls.BUTTON_MODE)
+        button = cls(name, joystick_id, input_id, mode=cls.BUTTON_MODE)
         cls.__inputs__[name] = button
 
         return button
 
     @classmethod
-    def add_axis(cls, name: str, joystick_id: int, input_id: str, inverted=False, deadzone=0.1) -> 'Input':
+    def add_axis(cls,
+                 name: str,
+                 joystick_id: int,
+                 input_id: str,
+                 inverted: bool = False,
+                 deadzone: float = 0.1,
+                 axis_filter=None,
+                 axis_transform=None) -> 'Input':
         if name in cls.__inputs__:
             raise KeyError(f'Input "{name}" already exists.')
 
-        axis = cls(name, joystick_id, input_id, mode=cls.AXIS_MODE, inverted=inverted, deadzone=deadzone)
+        axis = cls(name, joystick_id, input_id, mode=cls.AXIS_MODE, inverted=inverted, deadzone=deadzone, axis_filter=axis_filter, axis_transform=axis_transform)
         cls.__inputs__[name] = axis
 
         return axis
 
     @classmethod
-    def create_composite_axis(cls, name: str, positive: 'Input', negative: 'Input') -> 'Input':
+    def create_composite_axis(cls,
+                              name: str,
+                              positive: 'Input',
+                              negative: 'Input',
+                              axis_filter=None,
+                              axis_transform=None) -> 'Input':
         if name in cls.__inputs__:
             raise KeyError(f'Input "{name}" already exists.')
 
-        composite = cls(name, mode=Input.COMPOSITE_AXIS_MODE, positive=positive, negative=negative)
+        composite = cls(name, mode=Input.COMPOSITE_AXIS_MODE, positive=positive, negative=negative, axis_filter=axis_filter, axis_transform=axis_transform)
         cls.__inputs__[name] = composite
 
         return composite
@@ -139,3 +220,7 @@ class Input:
     @classmethod
     def get_input(cls, name):
         return cls.__inputs__[name]
+
+    @staticmethod
+    def init():
+        Timer.start_coroutine(Input.__input_coroutine__(), CoroutineOrder.EARLY, ignore_stop_all=True)

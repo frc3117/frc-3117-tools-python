@@ -11,11 +11,12 @@ class CoroutineOrder(int, Enum):
 
 
 class Coroutine:
-    def __init__(self, generator, order):
+    def __init__(self, generator, order, ignore_stop_all=False):
         self.__generator = generator
         self.order = order
 
         self.is_done = False
+        self.ignore_stop_all = ignore_stop_all
 
     def do_coroutine(self):
         try:
@@ -46,6 +47,11 @@ class Timer:
         Timer.__DT = 0.
         Timer.__FRAME_COUNT = 0
 
+    @staticmethod
+    def reset():
+        Timer.__START_TIME = 0.
+        Timer.__FRAME_COUNT = 0
+
         Timer.stop_all_coroutine()
 
     @staticmethod
@@ -58,8 +64,8 @@ class Timer:
         Timer.__FRAME_COUNT += 1
 
     @staticmethod
-    def start_coroutine(coroutine, order: CoroutineOrder = CoroutineOrder.NORMAL) -> Coroutine:
-        cor = Coroutine(coroutine, order)
+    def start_coroutine(coroutine, order: CoroutineOrder = CoroutineOrder.NORMAL, ignore_stop_all: bool = False) -> Coroutine:
+        cor = Coroutine(coroutine, order, ignore_stop_all)
 
         if order == CoroutineOrder.EARLY:
             Timer.__EARLY_COROUTINES.append(cor)
@@ -86,13 +92,19 @@ class Timer:
     @staticmethod
     def stop_all_coroutine():
         for cor in Timer.__EARLY_COROUTINES:
-            cor.is_done = True
+            if not cor.ignore_stop_all:
+                cor.is_done = True
+                Timer.__EARLY_COROUTINES.remove(cor)
 
         for cor in Timer.__NORMAL_COROUTINES:
-            cor.is_done = True
+            if not cor.ignore_stop_all:
+                cor.is_done = True
+                Timer.__NORMAL_COROUTINES.remove(cor)
 
         for cor in Timer.__LATE_COROUTINE:
-            cor.is_done = True
+            if not cor.ignore_stop_all:
+                cor.is_done = True
+                Timer.__LATE_COROUTINE.remove(cor)
 
         Timer.__EARLY_COROUTINES.clear()
         Timer.__NORMAL_COROUTINES.clear()

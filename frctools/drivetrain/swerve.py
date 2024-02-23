@@ -2,10 +2,16 @@ from typing import List
 from frctools import Component, Coroutine, CoroutineOrder, Timer
 from frctools.input import Input
 from frctools.frcmath import Vector2, Polar, repeat, lerp, angle_normalize
+from enum import Enum
 
 import math
 import wpilib
 import wpiutil
+
+
+class SwerveDriveMode(int, Enum):
+    FIELD_CENTRIC = 0
+    ROBOT_CENTRIC = 1
 
 
 class SwerveModule:
@@ -143,6 +149,8 @@ class SwerveDrive(Component):
         self.vertical: Input = Input.get_input('vertical')
         self.rotation: Input = Input.get_input('rotation')
 
+        self.drive_mode = SwerveDriveMode.FIELD_CENTRIC
+
         wpilib.SmartDashboard.putData('SwerveDrive', self)
 
     def init(self):
@@ -150,12 +158,24 @@ class SwerveDrive(Component):
             mod.init()
 
     def update(self):
-        translation = Vector2(self.horizontal.get(), self.vertical.get()).rotate(self.get_heading())
+        if self.drive_mode == SwerveDriveMode.FIELD_CENTRIC:
+            self.__update_centric__(True)
+        elif self.drive_mode == SwerveDriveMode.ROBOT_CENTRIC:
+            self.__update_centric__(False)
+
+    def __update_centric__(self, use_heading: bool):
+        translation = Vector2(self.horizontal.get(), self.vertical.get())
+        if use_heading:
+            translation = translation.rotate(self.get_heading())
+
         rotation = self.rotation.get()
 
         for mod in self.modules:
             mod.update(translation,
                        rotation)
+
+    def set_drive_mode(self, mode:  SwerveDriveMode):
+        self.drive_mode = mode
 
     def get_heading(self):
         return angle_normalize(math.radians(self.imu.getAngle()) - self.imu_offset - self.heading_offset)
