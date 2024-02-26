@@ -24,10 +24,10 @@ class RobotBase(wpilib.TimedRobot):
         Timer.evaluate()
 
     def autonomousInit(self):
-        self.__component_init__(lambda comp: comp.init_teleop)
+        self.__component_init__(lambda comp: comp.init_teleop())
 
     def autonomousPeriodic(self):
-        self.__component_update__(lambda comp: comp.update_auto)
+        self.__component_update__(lambda comp: comp.update_auto())
 
     def teleopInit(self):
         self.__component_init__(lambda comp: comp.init_teleop())

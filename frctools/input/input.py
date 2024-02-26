@@ -30,7 +30,7 @@ class PowerTransform:
         self.power = max(power, 0)
 
     def evaluate(self, value: float) -> float:
-        return value ** self.power * (1. if value >= 0 else -1.)
+        return abs(value) ** self.power * (1. if value >= 0 else -1.)
 
     def __call__(self, value: float) -> float:
         return self.evaluate(value)
@@ -102,10 +102,10 @@ class Input:
     def get(self) -> Union[bool, float]:
         return self.__current_value
 
-    def get_up(self) -> bool:
+    def get_button_up(self) -> bool:
         return self.__last_value and not self.__current_value
 
-    def get_down(self) -> bool:
+    def get_button_down(self) -> bool:
         return not self.__last_value and self.__current_value
 
     def set_inverted(self, inverted: bool) -> 'Input':
@@ -171,6 +171,8 @@ class Input:
                     inp.__current_value = inp.__get_button__()
                 elif inp.mode == Input.COMPOSITE_AXIS_MODE:
                     inp.__current_value = inp.__get_composite_axis__()
+
+            yield None
 
     @classmethod
     def add_button(cls,

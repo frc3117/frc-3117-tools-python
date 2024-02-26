@@ -113,10 +113,6 @@ class Timer:
                 cor.is_done = True
                 Timer.__LATE_COROUTINE.remove(cor)
 
-        Timer.__EARLY_COROUTINES.clear()
-        Timer.__NORMAL_COROUTINES.clear()
-        Timer.__LATE_COROUTINE.clear()
-
     @staticmethod
     def __do_coroutines__(coroutines: List[Coroutine]):
         try:
