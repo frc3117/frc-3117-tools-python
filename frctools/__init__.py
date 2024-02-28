@@ -3,6 +3,7 @@ from .component import Component
 from .robot import RobotBase
 from .servo import Servo
 from .motors import MotorGroup
+from .networktables import HarfangsDashboard
 
 from . import drivetrain, input, frcmath, controll, sensor
 
@@ -15,6 +16,7 @@ __all__ = [
     'RobotBase',
     'Servo',
     'MotorGroup',
+    'HarfangsDashboard',
     'drivetrain',
     'input',
     'frcmath',
