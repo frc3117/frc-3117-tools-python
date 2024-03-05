@@ -1,7 +1,8 @@
-from enum import Enum
+from enum import Enum, IntFlag
 from typing import List
 
 import time
+import wpilib
 
 
 class CoroutineOrder(int, Enum):
@@ -24,8 +25,38 @@ class Coroutine:
         except StopIteration:
             self.is_done = True
 
+    def wait(self):
+        while not self.is_done:
+            yield None
+
     def __iter__(self):
         yield from self.__generator
+
+
+class Period(IntFlag):
+    NONE =              0b00000000
+
+    ENABLED =           0b00000001
+    MANUAL =            0b00000010
+    TEST =              0b00000100
+    ENDGAME =           0b00001000
+
+    AUTONOMOUS =        0b00000001
+    AUTONOMOUS_TEST =   0b00000101
+    TELEOP =            0b00000011
+    TELEOP_TEST =       0b00000111
+    TELEOP_ENDGAME =    0b00001011
+
+    @property
+    def is_enabled(self) -> bool:
+        return self & Period.ENABLED == Period.ENABLED
+
+    @is_enabled.setter
+    def is_enabled(self, value: bool):
+        return
+
+    def has_flag(self, flag):
+        return self & flag == flag
 
 
 class Timer:
@@ -136,6 +167,25 @@ class Timer:
         Timer.__do_coroutines__(Timer.__LATE_COROUTINE)
 
     @staticmethod
+    def get_period() -> Period:
+        period = Period.NONE
+
+        if wpilib.DriverStation.isEnabled():
+            period = period & Period.ENABLED
+
+            if wpilib.DriverStation.isTest():
+                period = period & Period.TEST
+            if not wpilib.DriverStation.isAutonomous():
+                period = period & Period.MANUAL
+
+                if wpilib.DriverStation.getMatchTime() <= 20:
+                    period = period & Period.ENDGAME
+
+        return period
+
+
+
+    @staticmethod
     def get_delta_time():
         return Timer.__DT
 
@@ -152,17 +202,21 @@ class Timer:
         return Timer.get_current_time() - time
 
     @staticmethod
+    def get_elapsed_frame(frame: int):
+        return Timer.get_frame_count() - frame
+
+    @staticmethod
     def get_frame_count():
         return Timer.__FRAME_COUNT
 
     @staticmethod
     def wait_for_frame(frame: int):
         start_frame = Timer.get_frame_count()
-        while Timer.get_frame_count() - start_frame <= frame:
+        while Timer.get_elapsed_frame(start_frame) < frame:
             yield None
 
     @staticmethod
     def wait_for_seconds(seconds: float):
         start_time = Timer.get_current_time()
-        while Timer.get_current_time() - start_time <= seconds:
+        while Timer.get_elapsed(start_time) < seconds:
             yield None

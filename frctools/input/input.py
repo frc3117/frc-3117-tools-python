@@ -1,5 +1,8 @@
 from typing import Dict, Union
 from enum import Enum
+
+import wpilib
+import wpiutil
 from wpilib import Joystick
 
 from frctools import frcmath, Timer, CoroutineOrder
@@ -36,7 +39,7 @@ class PowerTransform:
         return self.evaluate(value)
 
 
-class Input:
+class Input(wpiutil.Sendable):
     BUTTON_MODE = 0
     AXIS_MODE = 1
     COMPOSITE_AXIS_MODE = 2
@@ -54,6 +57,7 @@ class Input:
                  negative: 'Input' = None,
                  axis_filter=None,
                  axis_transform=None):
+        super().__init__()
         self.name = name
         self.joystick_id = joystick_id
         self.mode = mode
@@ -99,7 +103,15 @@ class Input:
             self.__last_value = False
             self.__current_value = False
 
+        wpilib.SmartDashboard.putData(f'inputs/{name}', self)
+
     def get(self) -> Union[bool, float]:
+        if self.mode == Input.BUTTON_MODE:
+            return self.__current_value
+
+        return self.__evaluate_axis__(self.__current_value)
+
+    def get_raw(self) -> Union[bool, float]:
         return self.__current_value
 
     def get_button_up(self) -> bool:
@@ -124,6 +136,9 @@ class Input:
         self.__transform = axis_transform
         return self
 
+    def override(self, value):
+        self.__current_value = value
+
     def __get_button__(self) -> bool:
         if self.__irl_mode__ == Input.BUTTON_MODE:
             return Input.__joysticks__[self.joystick_id].getRawButton(self.input_id)
@@ -142,22 +157,25 @@ class Input:
             value = Input.__joysticks__[self.joystick_id].getRawButton(self.input_id)
             value = value if value != self.invert else 0.
 
-        if self.__filter is not None:
-            value = self.__filter(value)
-        if self.__transform is not None:
-            value = self.__transform(value)
-
         return value
 
     def __get_composite_axis__(self) -> float:
         value = self.positive.get() - self.negative.get()
+        return value
 
+    def __evaluate_axis__(self, value):
         if self.__filter is not None:
             value = self.__filter(value)
         if self.__transform is not None:
             value = self.__transform(value)
 
         return value
+
+    def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
+        if self.mode == Input.BUTTON_MODE:
+            builder.addBooleanProperty('value', self.get, lambda v: None)
+        else:
+            builder.addDoubleProperty('value', self.get, lambda v: None)
 
     @staticmethod
     def __input_coroutine__():
@@ -222,6 +240,10 @@ class Input:
     @classmethod
     def get_input(cls, name):
         return cls.__inputs__[name]
+
+    @classmethod
+    def get_inputs(self):
+        return Input.__inputs__
 
     @staticmethod
     def init():

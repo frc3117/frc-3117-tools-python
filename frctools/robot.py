@@ -1,6 +1,8 @@
 from .timer import Timer
 from .input import Input
 from .component import Component
+from .autonomous import AutonomousManager
+from .networktables import HarfangsDashboard
 
 from typing import Dict
 
@@ -15,6 +17,16 @@ class RobotBase(wpilib.TimedRobot):
 
         RobotBase.__INSTANCE__ = self
         self.__components: Dict[str, Component] = {}
+        self.__auto_manager = AutonomousManager()
+        self.__current_auto: str = None
+
+        self.__auto_selector = wpilib.SendableChooser()
+        self.add_auto('none', None)
+
+        self.__loggers = []
+
+        #self.__dashboard__ = HarfangsDashboard.init_roborio()
+        wpilib.SmartDashboard.putData('Autonomous', self.__auto_selector)
 
     def robotInit(self):
         Timer.init()
@@ -24,10 +36,14 @@ class RobotBase(wpilib.TimedRobot):
         Timer.evaluate()
 
     def autonomousInit(self):
+        self.__auto_manager.start_auto(self.__auto_selector.getSelected())
         self.__component_init__(lambda comp: comp.init_teleop())
 
     def autonomousPeriodic(self):
         self.__component_update__(lambda comp: comp.update_auto())
+
+    def autonomousExit(self) -> None:
+        self.__auto_manager.end_auto()
 
     def teleopInit(self):
         self.__component_init__(lambda comp: comp.init_teleop())
@@ -49,6 +65,9 @@ class RobotBase(wpilib.TimedRobot):
 
     def disabledExit(self):
         Timer.reset()
+
+        for logger in self.__loggers:
+            logger.init()
 
     def add_component(self, name: str, component: Component):
         self.__components[name] = component
@@ -76,6 +95,15 @@ class RobotBase(wpilib.TimedRobot):
 
         Timer.do_coroutines()
         Timer.do_late_coroutines()
+
+    def add_auto(self, name: str, auto, default: bool = False):
+        if default:
+            self.__auto_selector.setDefaultOption(name, auto)
+        else:
+            self.__auto_selector.addOption(name, auto)
+
+    def add_logger(self, logger):
+        self.__loggers.append(logger)
 
     @staticmethod
     def instance():

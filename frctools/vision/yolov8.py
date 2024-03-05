@@ -12,14 +12,22 @@ try:
 
             self.__names = self.__yolo.names
 
+            self.__prev_frame_id = 0
+            self.__prev_frame = None
+            self.__prev_result = None
+
         def look_for_objects(self):
             frame = next(self.__frame_gen)
             if frame is None:
                 return None
 
             frame_id, frame = frame
+            if frame_id != self.__prev_frame_id:
+                self.__prev_frame_id = frame_id
+                self.__prev_frame = frame
+                self.__prev_result = self.detect(frame)
 
-            return self.detect(frame)
+            return self.__prev_frame_id, self.__prev_frame, self.__prev_result
 
         def detect(self, frame):
             return self.__yolo(frame, verbose=False)

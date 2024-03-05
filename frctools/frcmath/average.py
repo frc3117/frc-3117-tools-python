@@ -18,3 +18,6 @@ class MovingAverage:
 
     def get(self):
         return self.__last_avg
+
+    def clear(self):
+        self.__queue.clear()

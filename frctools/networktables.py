@@ -1,12 +1,25 @@
 import ntcore
 
 
+class HarfangsDashboardTable:
+    pass
+
+
 class HarfangsDashboard:
     __INSTANCE__: 'HarfangsDashboard' = None
 
     def __init__(self, nt: ntcore.NetworkTableInstance):
         self.__nt = nt
-        pass
+
+    @staticmethod
+    def init_roborio():
+        if HarfangsDashboard.__INSTANCE__ is None:
+            nt = ntcore.NetworkTableInstance.getDefault()
+
+            HarfangsDashboard.__INSTANCE__ = HarfangsDashboard(nt)
+            return HarfangsDashboard.__INSTANCE__
+
+        raise Exception('')
 
     @staticmethod
     def init_client(identity: str, hostname: str, version: int = 4) -> 'HarfangsDashboard':
@@ -24,8 +37,8 @@ class HarfangsDashboard:
 
             HarfangsDashboard.__INSTANCE__ = HarfangsDashboard(nt)
             return HarfangsDashboard.__INSTANCE__
-        else:
-            raise Exception('')
+
+        raise Exception('')
 
     @staticmethod
     def instance() -> 'HarfangsDashboard':
@@ -33,3 +46,6 @@ class HarfangsDashboard:
 
     def get_table(self, key) -> ntcore.NetworkTable:
         return self.__nt.getTable(f'frc3117/{key}')
+
+    def boolean_entry(self, key):
+        pass

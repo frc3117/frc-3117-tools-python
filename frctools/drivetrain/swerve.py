@@ -30,7 +30,12 @@ class SwerveModule:
         self.steering_controller = steering_controller
         self.steering_offset = steering_offset
 
+        self.speed = 1.
+
         self.rotation_vector = Vector2(position.y, -position.x).normalize()
+
+        self.__translation: Vector2 = Vector2.zero()
+        self.__rotation: float = 0.
 
         self.__target_vec = Vector2.zero()
 
@@ -46,18 +51,47 @@ class SwerveModule:
         if not self.is_in_control():
             self.__control_coroutine = Timer.start_coroutine(self.__control_loop__(), CoroutineOrder.LATE)
 
+        self.__translation = translation
+        self.__rotation = rotation
+
+    def set_axes(self, horizontal: float = None, vertical: float = None, rotation: float = None):
+        self.set_horizontal(horizontal)
+        self.set_vertical(vertical)
+        self.set_rotation(rotation)
+
+    def set_horizontal(self, horizontal: float):
+        if horizontal is not None:
+            self.__translation.x = horizontal
+
+    def set_vertical(self, vertical: float):
+        if vertical is not None:
+            self.__translation.y = vertical
+
+    def set_rotation(self, rotation: float):
+        if rotation is not None:
+            self.__rotation = rotation
+
+    def set_speed(self, speed: float):
+        self.speed = speed
+
+    def __compute_vectors__(self):
         # Compute the translation and rotation vectors
-        rot = self.rotation_vector * rotation
+        rot = self.rotation_vector * self.__rotation
 
         # Normalize if the vector is greater than one
-        sum_vec = translation + rot
+        sum_vec = self.__translation + rot
         if sum_vec.magnitude > 1:
             sum_vec.normalize()
 
-        self.__target_vec = sum_vec
+        self.__target_vec = sum_vec * self.speed
+
+        self.__translation = Vector2.zero()
+        self.__rotation = 0
 
     def __control_loop__(self):
         while True:
+            self.__compute_vectors__()
+
             if self.__target_vec.magnitude <= 0.01:
                 self.drive_motor.set(0)
                 self.steering_motor.set(0)
@@ -144,6 +178,8 @@ class SwerveDrive(Component):
         self.modules = modules
         self.imu = imu
 
+        self.speed = 1.
+
         self.imu_offset = imu_offset
         self.heading_offset = 0.
         self.set_current_heading(start_heading)
@@ -166,6 +202,10 @@ class SwerveDrive(Component):
         elif self.drive_mode == SwerveDriveMode.ROBOT_CENTRIC:
             self.__update_centric__(False)
 
+    def override_axes(self, horzontal: float = None, vertical: float = None, rotation: float = None):
+        for mod in self.modules:
+            mod.set_axes(horzontal, vertical, rotation)
+
     def __update_centric__(self, use_heading: bool):
         translation = Vector2(self.horizontal.get(), self.vertical.get())
         if use_heading:
@@ -176,6 +216,10 @@ class SwerveDrive(Component):
         for mod in self.modules:
             mod.update(translation,
                        rotation)
+
+    def set_speed(self, speed: float):
+        for mod in self.modules:
+            mod.set_speed(speed)
 
     def set_drive_mode(self, mode:  SwerveDriveMode):
         self.drive_mode = mode
@@ -193,6 +237,7 @@ class SwerveDrive(Component):
         self.set_current_heading(0.)
 
     def initSendable(self, builder: wpiutil.SendableBuilder):
+        builder.addDoubleProperty('heading', self.get_heading, lambda v: None)
         for i, mod in enumerate(self.modules):
             curr_mod = mod
             builder.addDoubleProperty(f'{i}/RawSteerAngle', curr_mod.get_stee_rangle_raw, lambda v: None)
