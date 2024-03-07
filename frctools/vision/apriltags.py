@@ -51,6 +51,12 @@ try:
     import numpy as np
     import pupil_apriltags as apriltag
 
+
+    class AprilTagDetection:
+        def __init__(self, tag: AprilTag, apriltag_detection: apriltag.Detection):
+            self.__tag = tag
+            self.__apriltag_detection = apriltag_detection
+
     class AprilTagCamera:
         def __init__(self, tag_size: float, focal_length: float, camera_matrix: np.ndarray):
             self.__detector = apriltag.Detector(families='tag36h11')
@@ -74,6 +80,10 @@ try:
 
             return out_img
 except ImportError:
+    class AprilTagDetection:
+        def __init__(self, *args, **kwargs):
+            raise RuntimeError("OpenCV, Numpy, Apriltags3 need to be installed installed.")
+
     class AprilTagCamera:
         def __init__(self, *args, **kwargs):
             raise RuntimeError("OpenCV, Numpy, Apriltags3 need to be installed installed.")
