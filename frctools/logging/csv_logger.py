@@ -30,7 +30,7 @@ class CSVLogger:
 
         now = datetime.now()
 
-        self.__file = open(f'{CSVLogger.__LOG_FOLDER__}/{now.strftime("%m-%d-%y_%H:%M:%S")}_{self.file_name}.csv', 'a', buffering=0)
+        self.__file = open(f'{CSVLogger.__LOG_FOLDER__}/{now.strftime("%m-%d-%y_%H:%M:%S")}_{self.file_name}.csv', 'a')
         self.__file.write('\t'.join([d[0] for d in self.data]) + '\n')
 
         self.__last_flush = Timer.get_current_time()
