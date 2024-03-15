@@ -1,3 +1,5 @@
+import math
+
 from frctools import Timer
 from frctools.frcmath import clamp
 
@@ -5,13 +7,14 @@ import wpiutil
 
 
 class PID(wpiutil.Sendable):
-    def __init__(self, kp: float, ki: float, kd: float, integral_range=None):
+    def __init__(self, kp: float, ki: float, kd: float, integral_range=None, reset_integral_on_flip: bool = False):
         super().__init__()
         self.kp = kp
         self.ki = ki
         self.kd = kd
 
         self.__integral_range = integral_range
+        self.__reset_integral_on_flip = reset_integral_on_flip
 
         self.__previous_error = 0.
         self.__integral = 0.
@@ -26,6 +29,9 @@ class PID(wpiutil.Sendable):
 
         if self.__integral_range is not None:
             self.__integral = clamp(self.__integral, self.__integral_range[0], self.__integral_range[1])
+
+        if self.__reset_integral_on_flip and math.copysign(error, self.__previous_error) != error:
+            self.__integral = 0
 
         return self.kp * error + self.ki * self.__integral + self.kd * derivative
 
