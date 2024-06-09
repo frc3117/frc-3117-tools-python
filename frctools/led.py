@@ -9,7 +9,7 @@ import wpiutil
 
 
 class LED(Component):
-    def __init__(self, channel: int, led_count: int, idle_color=(255, 255, 0), brightness = 0.5):
+    def __init__(self, channel: int, led_count: int, idle_color=(255, 0, 0), brightness = 0.5):
         super().__init__()
 
         self.__led = wpilib.AddressableLED(channel)
