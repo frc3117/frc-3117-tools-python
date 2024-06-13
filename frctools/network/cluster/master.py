@@ -6,11 +6,11 @@ class ClusterMasterChannel:
     pass
 
 
-class TCPClusterMasterChannel(ClusterMasterChannel):
+class TCPClusterMasterChannel(ClusterMasterChannel, TCPServer):
     pass
 
 
-class UDPClusterMasterChannel(ClusterMasterChannel):
+class UDPClusterMasterChannel(ClusterMasterChannel, UDPServer):
     pass
 
 
