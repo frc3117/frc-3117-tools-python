@@ -26,6 +26,12 @@ try:
         def get(self) -> float:
             return self.__encoder.getVelocity()
 
+        def set_voltage(self, voltage: float):
+            self.setVoltage(voltage)
+
+        def get_voltage(self) -> float:
+            return self.getBusVoltage()
+
         def set_brake(self, brake: bool):
             self.setIdleMode(self.__brake_from_bool__(brake))
 
@@ -53,7 +59,7 @@ except ImportError:
 
 try:
     from phoenix6.hardware import TalonFX
-    from phoenix6.controls import DutyCycleOut
+    from phoenix6.controls import VelocityDutyCycle, VoltageOut
     from phoenix6.configs import TalonFXConfiguration
     from phoenix6.configs.talon_fx_configs import NeutralModeValue, InvertedValue
 
@@ -68,16 +74,23 @@ try:
             self.config.motor_output.neutral_mode = WPI_TalonFX.__brake_from_bool__(brake)
             self.config.inverted = WPI_TalonFX.__inverted_from_bool__(inverted)
 
-            self.__duty_cycle_out = DutyCycleOut(0, False, brake)
+            self.__duty_cycle_out = VelocityDutyCycle(0, enable_foc=False)
+            self.__voltage_out = VoltageOut(0, enable_foc=False)
 
             self.configurator.apply(self.config)
-            self.set_control(self.__duty_cycle_out)
+            self.set_control(self.__voltage_out)
 
         def set(self, value: float):
-            self.set_control(self.__duty_cycle_out.with_output(value))
+            self.set_control(self.__duty_cycle_out.with_velocity(value))
 
         def get(self) -> float:
             return self.get_velocity().value
+
+        def set_voltage(self, voltage: float):
+            self.set_control(self.__voltage_out.with_output(voltage))
+
+        def get_voltage(self) -> float:
+            return self.get_motor_voltage().value
 
         def set_brake(self, brake: bool):
             self.configurator.apply(self.config.with_motor_output(self.config.motor_output.with_neutral_mode(WPI_TalonFX.__brake_from_bool__(brake))))
