@@ -4,6 +4,7 @@ from .robot import RobotBase
 from .servo import Servo
 from .motors import MotorGroup, WPI_CANSparkMax, WPI_TalonFX
 from .networktables import HarfangsDashboard
+from .led import LED
 
 from . import drivetrain, input, frcmath, controll, sensor, devices
 
@@ -19,6 +20,7 @@ __all__ = [
     'WPI_CANSparkMax',
     'WPI_TalonFX',
     'HarfangsDashboard',
+    'LED',
     'drivetrain',
     'input',
     'frcmath',

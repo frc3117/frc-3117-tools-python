@@ -1,7 +1,7 @@
 from typing import List
 from frctools import Component, Coroutine, CoroutineOrder, Timer
 from frctools.input import Input
-from frctools.frcmath import Vector2, Polar, repeat, lerp, angle_normalize
+from frctools.frcmath import Vector2, Polar, repeat, lerp, angle_normalize, delta_angle
 from enum import Enum
 
 import math
@@ -12,6 +12,40 @@ import wpiutil
 class SwerveDriveMode(int, Enum):
     FIELD_CENTRIC = 0
     ROBOT_CENTRIC = 1
+
+
+class SwerveHoldAngle:
+    def __init__(self, swerve: 'SwerveDrive', controller):
+        self.__swerve = swerve
+        self.__controller = controller
+
+        self.__target = 0
+        self.__is_running = False
+
+    def set_target(self, target):
+        self.__target = target
+
+    def start(self):
+        self.__is_running = True
+
+    def stop(self):
+        self.__is_running = False
+
+    def is_running(self):
+        return self.__is_running
+
+    def __control_loop__(self):
+        while True:
+            if self.__is_running:
+                current = Vector2(0, 1).rotate(self.__swerve.get_heading())
+                target = Vector2(0, 1).rotate(self.__target)
+
+                error = current.dot(target)
+                self.__swerve.override_axes(horzontal=self.__controller.evaluate(error))
+            yield None
+
+    def __iter__(self):
+        yield from self.__control_loop__()
 
 
 class SwerveModule:
@@ -42,17 +76,15 @@ class SwerveModule:
         self.__last_flip = 1
         self.__last_flip_frame = 0
 
-        self.__control_coroutine: Coroutine = None
-
     def init(self):
         pass
 
     def update(self, translation: Vector2, rotation: float):
-        if not self.is_in_control():
-            self.__control_coroutine = Timer.start_coroutine(self.__control_loop__(), CoroutineOrder.LATE)
-
         self.__translation = translation
         self.__rotation = rotation
+
+        self.__compute_vectors__()
+        self.__controll_module__()
 
     def set_axes(self, horizontal: float = None, vertical: float = None, rotation: float = None):
         self.set_horizontal(horizontal)
@@ -88,58 +120,49 @@ class SwerveModule:
         self.__translation = Vector2.zero()
         self.__rotation = 0
 
-    def __control_loop__(self):
-        while True:
-            self.__compute_vectors__()
+    def __controll_module__(self):
+        if self.__target_vec.magnitude <= 0.01:
+            self.drive_motor.set(0)
+            self.steering_motor.set(0)
 
-            if self.__target_vec.magnitude <= 0.01:
-                self.drive_motor.set(0)
-                self.steering_motor.set(0)
+            self.__last_flip = 1
+            self.__last_flip_frame = 0
 
-                self.__last_flip = 1
-                self.__last_flip_frame = 0
+            return
 
-                yield None
-                continue
+        # Get the drive motor speed
+        drive = self.__target_vec.magnitude
 
-            # Get the drive motor speed
-            drive = self.__target_vec.magnitude
+        # Get the forward vector for the module
+        forward = Polar(self.get_steer_angle(), 1)
 
-            # Get the forward vector for the module
-            forward = Polar(self.get_steer_angle(), 1)
+        # Convert the vector from polar from to cartesian
+        forward_vec = forward.to_vector()
+        left_vec = forward_vec.rotate(math.pi / 2)
 
-            # Convert the vector from polar from to cartesian
-            forward_vec = forward.to_vector()
-            left_vec = forward_vec.rotate(math.pi / 2)
+        # Get the normalized target vector
+        target_norm = self.__target_vec.normalized()
+        target_norm *= self.__last_flip
+        drive *= self.__last_flip
 
-            # Get the normalized target vector
-            target_norm = self.__target_vec.normalized()
+        # Project the target vector onto the forward and left
+        forward_dot = forward_vec.dot(target_norm)
+        left_dot = left_vec.dot(target_norm)
+        curr_frame = Timer.get_frame_count()
 
-            target_norm *= self.__last_flip
-            drive *= self.__last_flip
+        # If the projection on the forward vector is negative. It is faster to flip the drive motor
+        if forward_dot < 0 and (curr_frame - self.__last_flip_frame >= 5):
+            drive *= -1
+            left_dot *= -1
+            self.__last_flip *= -1
+            self.__last_flip_frame = curr_frame
 
-            # Project the target vector onto the forward and left
-            forward_dot = forward_vec.dot(target_norm)
-            left_dot = left_vec.dot(target_norm)
+        # Evaluate the output of the steering pid controller
+        steering = self.steering_controller.evaluate(left_dot)
 
-            curr_frame = Timer.get_frame_count()
-
-            # If the projection on the forward vector is negative. It is faster to flip the drive motor
-            if forward_dot < 0 and (curr_frame - self.__last_flip_frame >= 5):
-                drive *= -1
-                left_dot *= -1
-
-                self.__last_flip *= -1
-                self.__last_flip_frame = curr_frame
-
-            # Evaluate the output of the steering pid controller
-            steering = self.steering_controller.evaluate(left_dot)
-
-            # Apply the command to the motors
-            self.steering_motor.set(steering)
-            self.drive_motor.set(drive)
-
-            yield None
+        # Apply the command to the motors
+        self.steering_motor.set(steering)
+        self.drive_motor.set(drive)
 
     def get_stee_rangle_raw(self):
         return self.steering_encoder.get()
@@ -164,9 +187,6 @@ class SwerveModule:
         return Vector2(vel * math.cos(angle),
                        vel * math.sin(angle))
 
-    def is_in_control(self) -> bool:
-        return self.__control_coroutine is not None and not self.__control_coroutine.is_done
-
 
 class SwerveDrive(Component):
     def __init__(self, modules: List[SwerveModule],
@@ -190,32 +210,45 @@ class SwerveDrive(Component):
 
         self.drive_mode = SwerveDriveMode.FIELD_CENTRIC
 
-        wpilib.SmartDashboard.putData('SwerveDrive', self)
+        self.__translation: Vector2 = Vector2()
+        self.__rotation: float = 0.
+
+        self.__control_coroutine = None
 
     def init(self):
         for mod in self.modules:
             mod.init()
 
     def update(self):
-        if self.drive_mode == SwerveDriveMode.FIELD_CENTRIC:
-            self.__update_centric__(True)
-        elif self.drive_mode == SwerveDriveMode.ROBOT_CENTRIC:
-            self.__update_centric__(False)
+        self.__control_coroutine = Timer.start_coroutine_if_stopped(self.__control_loop__, self.__control_coroutine, CoroutineOrder.LATE)
 
-    def override_axes(self, horzontal: float = None, vertical: float = None, rotation: float = None):
-        for mod in self.modules:
-            mod.set_axes(horzontal, vertical, rotation)
+        self.__translation = Vector2(self.horizontal.get(), self.vertical.get())
+        self.__rotation = self.rotation.get()
+
+    def __control_loop__(self):
+        while True:
+            if self.drive_mode == SwerveDriveMode.FIELD_CENTRIC:
+                self.__update_centric__(True)
+            elif self.drive_mode == SwerveDriveMode.ROBOT_CENTRIC:
+                self.__update_centric__(False)
+
+            yield None
+
+    def override_axes(self, horizontal: float = None, vertical: float = None, rotation: float = None):
+        if horizontal is not None:
+            self.__translation.x = horizontal
+        if vertical is not None:
+            self.__translation.y = vertical
+        if rotation is not None:
+            self.__rotation = rotation
 
     def __update_centric__(self, use_heading: bool):
-        translation = Vector2(self.horizontal.get(), self.vertical.get())
         if use_heading:
-            translation = translation.rotate(self.get_heading())
-
-        rotation = self.rotation.get()
+            self.__translation = self.__translation.rotate(self.get_heading())
 
         for mod in self.modules:
-            mod.update(translation,
-                       rotation)
+            mod.update(self.__translation,
+                       self.__rotation)
 
     def set_speed(self, speed: float):
         for mod in self.modules:
@@ -231,7 +264,7 @@ class SwerveDrive(Component):
         self.heading_offset = offset
 
     def set_current_heading(self, heading: float):
-        self.heading_offset = angle_normalize(math.radians(self.imu.getAngle() - self.imu_offset) - heading)
+        self.heading_offset -= delta_angle(self.get_heading(), heading)
 
     def zero_heading(self):
         self.set_current_heading(0.)

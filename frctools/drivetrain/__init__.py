@@ -1,7 +1,9 @@
-from .swerve import SwerveModule, SwerveDrive
+from .swerve import SwerveDriveMode, SwerveHoldAngle, SwerveModule, SwerveDrive
 
 
 __all__ = [
-    "SwerveModule",
-    "SwerveDrive"
+    'SwerveDriveMode',
+    'SwerveHoldAngle',
+    'SwerveModule',
+    'SwerveDrive'
 ]
