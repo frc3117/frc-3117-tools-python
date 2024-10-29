@@ -1,7 +1,9 @@
 import sys
 
+from argparse import ArgumentParser
 
-def start_path_planning():
+
+def start_path_planning(*args):
     from frctools.frcmath import Vector2
     from frctools.controll.path_planning import PathPlanning, PathPlanningPoint
     from frctools.visualization.path_planning import PathPlanningVisualization
@@ -14,14 +16,14 @@ def start_path_planning():
     PathPlanningVisualization(planning, (17.960, 9.144), (0.686, 0.813)).run()
 
 
-def start_cam_calibration():
+def start_cam_calibration(*args):
     from frctools.visualization import CameraCalibratorVisualization
 
     calibrator = CameraCalibratorVisualization()
     calibrator.run()
 
 
-def start_swerve_visualization():
+def start_swerve_visualization(*args):
     from frctools.frcmath import Vector2
     from frctools.visualization import SwerveVisualization
 
@@ -35,10 +37,22 @@ def start_swerve_visualization():
     swerve.run()
 
 
+def start_deploy(*args):
+    from frctools.deploy import deploy_rio
+
+    args_parse = ArgumentParser()
+    args_parse.add_argument('team', type=int)
+    args_parse.add_argument('-p', '--path', default='./robot/')
+
+    arguments = args_parse.parse_args(args)
+
+    deploy_rio(arguments.team, arguments.path)
+
 ENTRYPOINTS = {
     'pathplanning': start_path_planning,
     'camcalibration': start_cam_calibration,
-    'swerve': start_swerve_visualization
+    'swerve': start_swerve_visualization,
+    'deploy': start_deploy
 }
 
 
@@ -49,4 +63,4 @@ if __name__ == '__main__':
         print(f'Invalid mode: {mode}')
         sys.exit(1)
 
-    ENTRYPOINTS[mode]()
+    ENTRYPOINTS[mode](*sys.argv[2:])
