@@ -1,0 +1,2 @@
+class StreamDeckTab:
+    pass
