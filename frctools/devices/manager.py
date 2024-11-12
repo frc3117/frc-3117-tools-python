@@ -4,7 +4,11 @@ import json
 
 
 class DevicesManager:
+    __INSTANCE__: 'DevicesManager' = None
+
     def __init__(self, use_builtin_factories: bool = True):
+        DevicesManager.__INSTANCE__ = self
+
         self.__factories = {}
         self.__devices = {}
 
@@ -38,3 +42,7 @@ class DevicesManager:
             raise ValueError(f'Unknown device: {device_name}')
 
         return self.__devices[device_name]
+
+    @staticmethod
+    def instance():
+        return DevicesManager.__INSTANCE__
