@@ -101,7 +101,10 @@ class SwerveCalibrator(Component):
     def __init__(self, modules: List[SwerveCalibratorModule]):
         super().__init__()
         self.__modules = modules
+
         self.__next_button_input = Input.get_input('next_button')
+        self.__drive_axis = Input.get_input('drive')
+        self.__dir_axis = Input.get_input('direction')
 
         for mod in self.__modules:
             mod.reset()
@@ -134,6 +137,8 @@ class SwerveCalibrator(Component):
 
         for i, mod in enumerate(self.__modules):
             mod.print_calibration(f'Swerve {i}')
+
+        yield from self.__test_drive__()
 
     def __align_direction__(self):
         print('Allign all the swerve module in position to move forward')
@@ -207,3 +212,15 @@ class SwerveCalibrator(Component):
         for i, mod in enumerate(self.__modules):
             mod.set_direction_motor_inverted(direction_distance[i] < 0)
             mod.set_drive_motor_inverted(drive_distance[i] < 0)
+
+    def __test_drive__(self):
+        yield None
+        while True:
+            drive_axis = self.__drive_axis.get()
+            dir_axis = self.__dir_axis.get()
+
+            for mod in self.__modules:
+                mod.set_drive(drive_axis)
+                mod.set_direction(dir_axis)
+
+            yield None
