@@ -12,16 +12,56 @@ class MotorGroup:
 
 
 try:
-    from rev import CANSparkMax
+    from rev import SparkBase, SparkBaseConfig, SparkMax, SparkMaxConfig, SparkFlex, SparkFlexConfig
 
-    class WPI_CANSparkMax(CANSparkMax):
+
+    def __motor_type_from_bool__(b: bool) -> SparkBase.MotorType:
+        return SparkBase.MotorType.kBrushless if b else SparkBase.MotorType.kBrushed
+
+    def __brake_from_bool__(b: bool) -> SparkBaseConfig.IdleMode:
+        return SparkBaseConfig.IdleMode.kBrake if b else SparkBaseConfig.IdleMode.kCoast
+
+
+    class WPI_CANSparkMax(SparkMax):
         def __init__(self, can_id: int, brushless: bool, brake: bool = False, inverted: bool = False):
-            super().__init__(can_id, self.__motor_type_from_bool__(brushless))
+            super().__init__(can_id, __motor_type_from_bool__(brushless))
 
             self.__encoder = self.getEncoder()
 
-            self.setIdleMode(self.__brake_from_bool__(brake))
-            self.setInverted(inverted)
+            self.__config = SparkMaxConfig()
+            self.__config.setIdleMode(__brake_from_bool__(brake))
+            self.__config.inverted(inverted)
+
+        def get(self) -> float:
+            return self.__encoder.getVelocity()
+
+        def set_voltage(self, voltage: float):
+            self.setVoltage(voltage)
+        def get_voltage(self) -> float:
+            return self.getBusVoltage()
+
+        def set_brake(self, brake: bool):
+            self.__config.setIdleMode(__brake_from_bool__(brake))
+            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+        def get_brake(self) -> bool:
+            return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
+
+        def set_inverted(self, inverted: bool):
+            self.__config.inverted(inverted)
+            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+        def get_inverted(self) -> bool:
+            return self.configAccessor.getInverted()
+
+
+    class WPI_CANSparkFlex(SparkFlex):
+        def __init__(self, can_id: int, brushless: bool, brake: bool = False, inverted: bool = False):
+            super().__init__(can_id, __motor_type_from_bool__(brushless))
+
+            self.__encoder = self.getEncoder()
+
+            self.__config = SparkFlexConfig()
+            self.__config.setIdleMode(__brake_from_bool__(brake))
+            self.__config.inverted(inverted)
 
         def get(self) -> float:
             return self.__encoder.getVelocity()
@@ -33,27 +73,26 @@ try:
             return self.getBusVoltage()
 
         def set_brake(self, brake: bool):
-            self.setIdleMode(self.__brake_from_bool__(brake))
+            self.__config.setIdleMode(__brake_from_bool__(brake))
+            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
 
         def get_brake(self) -> bool:
-            return self.getIdleMode() == CANSparkMax.IdleMode.kBrake
+            return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
 
         def set_inverted(self, inverted: bool):
-            self.setInverted(inverted)
+            self.__config.inverted(inverted)
+            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
 
         def get_inverted(self) -> bool:
-            return self.getInverted()
+            return self.configAccessor.getInverted()
 
-        @staticmethod
-        def __motor_type_from_bool__(b: bool) -> CANSparkMax.MotorType:
-            return CANSparkMax.MotorType.kBrushless if b else CANSparkMax.MotorType.kBrushed
-
-        @staticmethod
-        def __brake_from_bool__(b: bool) -> CANSparkMax.IdleMode:
-            return CANSparkMax.IdleMode.kBrake if b else CANSparkMax.IdleMode.kCoast
 except ImportError:
     class WPI_CANSparkMax:
-        def __init__(self, can_id: int, brushless: bool, brake: bool = False, inverted: bool = False):
+        def __init__(self, *args, **kwargs):
+            raise NotImplementedError("rev library is not installed")
+
+    class WPI_CANSparkFlex:
+        def __init__(self, *args, **kwargs):
             raise NotImplementedError("rev library is not installed")
 
 
@@ -113,7 +152,7 @@ try:
             return InvertedValue.COUNTER_CLOCKWISE_POSITIVE if b else InvertedValue.CLOCKWISE_POSITIVE
 except ImportError:
     class WPI_TalonFX:
-        def __init__(self, can_id: int, brake: bool = False, inverted: bool = False):
+        def __init__(self, *args, **kwargs):
             raise NotImplementedError("phoenix6 library is not installed")
 
 

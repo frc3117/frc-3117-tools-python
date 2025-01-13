@@ -2,7 +2,7 @@ from .timer import Timer, CoroutineOrder, Coroutine
 from .component import Component
 from .robot import RobotBase
 from .servo import Servo
-from .motors import MotorGroup, WPI_CANSparkMax, WPI_TalonFX
+from .motors import MotorGroup, WPI_CANSparkMax, WPI_CANSparkFlex, WPI_TalonFX
 from .networktables import HarfangsDashboard
 from .led import LED
 
@@ -18,6 +18,7 @@ __all__ = [
     'Servo',
     'MotorGroup',
     'WPI_CANSparkMax',
+    'WPI_CANSparkFlex',
     'WPI_TalonFX',
     'HarfangsDashboard',
     'LED',
