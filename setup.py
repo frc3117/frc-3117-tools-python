@@ -10,7 +10,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='frctools',
-    version=os.environ['FRCTOOLS_VERSION'],
+    version='2025.0.0',
     description='A collection of tools for FRC team 3117.',
     long_description=long_description,
     long_description_content_type='text/markdown',
