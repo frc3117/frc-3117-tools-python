@@ -32,6 +32,9 @@ try:
             self.__config.setIdleMode(__brake_from_bool__(brake))
             self.__config.inverted(inverted)
 
+            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+
+
         def get(self) -> float:
             return self.__encoder.getVelocity()
 
@@ -62,6 +65,8 @@ try:
             self.__config = SparkFlexConfig()
             self.__config.setIdleMode(__brake_from_bool__(brake))
             self.__config.inverted(inverted)
+
+            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
 
         def get(self) -> float:
             return self.__encoder.getVelocity()
