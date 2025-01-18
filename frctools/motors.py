@@ -30,7 +30,7 @@ try:
 
             self.__config = SparkMaxConfig()
             self.__config.setIdleMode(__brake_from_bool__(brake))
-            self.__config.inverted(inverted)
+            self.setInverted(inverted)
 
             self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
 
@@ -50,10 +50,9 @@ try:
             return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
 
         def set_inverted(self, inverted: bool):
-            self.__config.inverted(inverted)
-            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+            self.setInverted(inverted)
         def get_inverted(self) -> bool:
-            return self.configAccessor.getInverted()
+            return self.getInverted()
 
 
     class WPI_CANSparkFlex(SparkFlex):
@@ -64,7 +63,7 @@ try:
 
             self.__config = SparkFlexConfig()
             self.__config.setIdleMode(__brake_from_bool__(brake))
-            self.__config.inverted(inverted)
+            self.setInverted(inverted)
 
             self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
 
@@ -85,11 +84,10 @@ try:
             return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
 
         def set_inverted(self, inverted: bool):
-            self.__config.inverted(inverted)
-            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+            self.setInverted(inverted)
 
         def get_inverted(self) -> bool:
-            return self.configAccessor.getInverted()
+            return self.getInverted()
 
 except ImportError:
     class WPI_CANSparkMax:
