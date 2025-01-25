@@ -1,6 +1,6 @@
 from .timer import Timer, CoroutineOrder, Coroutine
 from .component import Component
-from .robot import RobotBase
+from .robot import RobotBase, Alliance
 from .servo import Servo
 from .motors import MotorGroup, WPI_CANSparkMax, WPI_CANSparkFlex, WPI_TalonFX
 from .networktables import HarfangsDashboard
@@ -15,6 +15,7 @@ __all__ = [
     'Coroutine',
     'Component',
     'RobotBase',
+    'Alliance',
     'Servo',
     'MotorGroup',
     'WPI_CANSparkMax',

@@ -1,28 +1,32 @@
+from frctools import Alliance
 from frctools.frcmath import Vector3, Quaternion
+from .apriltags_nt import AprilTagsNetworkTable
+
+from typing import Any
 
 
 class AprilTagDefinition:
-    def __init__(self, id: int, size: float, position: Vector3, rotation: Quaternion):
-        self.__id = id
-        self.__size = size
-        self.__position = position
-        self.__rotation = rotation
+	def __init__(self, id: int, size: float, position: Vector3, rotation: Quaternion):
+		self.__id = id
+		self.__size = size
+		self.__position = position
+		self.__rotation = rotation
 
-    @property
-    def id(self):
-        return self.__id
+	@property
+	def id(self):
+		return self.__id
 
-    @property
-    def size(self):
-        return self.__size
+	@property
+	def size(self):
+		return self.__size
 
-    @property
-    def position(self):
-        return self.__position
+	@property
+	def position(self):
+		return self.__position
 
-    @property
-    def rotation(self):
-        return self.rotation
+	@property
+	def rotation(self):
+		return self.rotation
 
 
 RAPIDREACT_2022_APRIL_TAGS = {
@@ -64,22 +68,22 @@ CHARGEDUP_2023_APRIL_TAGS = {
 }
 
 CRESCENDO_2024_APRIL_TAGS = {
-    1: AprilTagDefinition(1, 165.1, Vector3(15.079472, 0.245872, 1.355852), Quaternion(0., 0., 0.8660254037844386, 0.5)),
-    2: AprilTagDefinition(2, 165.1, Vector3(16.185134, 0.883666, 1.355852), Quaternion(0., 0., 0.8660254037844386, 0.5)),
-    3: AprilTagDefinition(3, 165.1, Vector3(16.579342, 4.982718, 1.451102), Quaternion(0., 0., 1., 0.)),
-    4: AprilTagDefinition(4, 165.1, Vector3(16.579342, 5.547868, 1.451102), Quaternion(0., 0., 1., 0.)),
-    5: AprilTagDefinition(5, 165.1, Vector3(14.700758, 8.2042, 1.355852), Quaternion(0., 0., 0.7071067811865476, -0.7071067811865475)),
-    6: AprilTagDefinition(6, 165.1, Vector3(1.8415, 8.2042, 1.355852), Quaternion(0., 0., 0.7071067811865476, -0.7071067811865475)),
-    7: AprilTagDefinition(7, 165.1, Vector3(-0.0381, 5.547868, 1.451102), Quaternion(0., 0., 0., 1.)),
-    8: AprilTagDefinition(8, 165.1, Vector3(-0.0381, 4.982718, 1.451102), Quaternion(0., 0., 0., 1.)),
-    9: AprilTagDefinition(9, 165.1, Vector3(0.356108, 0.883666, 1.355852), Quaternion(0., 0., 0.5, 0.8660254037844387)),
-    10: AprilTagDefinition(10, 165.1, Vector3(1.461516, 0.245872, 1.355852), Quaternion(0., 0., 0.5, 0.8660254037844387)),
-    11: AprilTagDefinition(11, 165.1, Vector3(11.904726, 3.713226, 1.3208), Quaternion(0., 0., 0.5, -0.8660254037844387)),
-    12: AprilTagDefinition(12, 165.1, Vector3(11.904726, 4.49834, 1.3208), Quaternion(0., 0., 0.5, 0.8660254037844387)),
-    13: AprilTagDefinition(13, 165.1, Vector3(11.220196, 4.105148, 1.3208), Quaternion(0., 0., 1., 0.)),
-    14: AprilTagDefinition(14, 165.1, Vector3(5.320792, 4.105148, 1.3208), Quaternion(0., 0., 0., 1.)),
-    15: AprilTagDefinition(15, 165.1, Vector3(4.641342, 4.49834, 1.3208), Quaternion(0., 0., 0.8660254037844386, 0.5)),
-    16: AprilTagDefinition(16, 165.1, Vector3(4.641342, 3.713226, 1.3208), Quaternion(0., 0., 0.8660254037844386, -0.5)),
+	1: AprilTagDefinition(1, 165.1, Vector3(15.079472, 0.245872, 1.355852), Quaternion(0., 0., 0.8660254037844386, 0.5)),
+	2: AprilTagDefinition(2, 165.1, Vector3(16.185134, 0.883666, 1.355852), Quaternion(0., 0., 0.8660254037844386, 0.5)),
+	3: AprilTagDefinition(3, 165.1, Vector3(16.579342, 4.982718, 1.451102), Quaternion(0., 0., 1., 0.)),
+	4: AprilTagDefinition(4, 165.1, Vector3(16.579342, 5.547868, 1.451102), Quaternion(0., 0., 1., 0.)),
+	5: AprilTagDefinition(5, 165.1, Vector3(14.700758, 8.2042, 1.355852), Quaternion(0., 0., 0.7071067811865476, -0.7071067811865475)),
+	6: AprilTagDefinition(6, 165.1, Vector3(1.8415, 8.2042, 1.355852), Quaternion(0., 0., 0.7071067811865476, -0.7071067811865475)),
+	7: AprilTagDefinition(7, 165.1, Vector3(-0.0381, 5.547868, 1.451102), Quaternion(0., 0., 0., 1.)),
+	8: AprilTagDefinition(8, 165.1, Vector3(-0.0381, 4.982718, 1.451102), Quaternion(0., 0., 0., 1.)),
+	9: AprilTagDefinition(9, 165.1, Vector3(0.356108, 0.883666, 1.355852), Quaternion(0., 0., 0.5, 0.8660254037844387)),
+	10: AprilTagDefinition(10, 165.1, Vector3(1.461516, 0.245872, 1.355852), Quaternion(0., 0., 0.5, 0.8660254037844387)),
+	11: AprilTagDefinition(11, 165.1, Vector3(11.904726, 3.713226, 1.3208), Quaternion(0., 0., 0.5, -0.8660254037844387)),
+	12: AprilTagDefinition(12, 165.1, Vector3(11.904726, 4.49834, 1.3208), Quaternion(0., 0., 0.5, 0.8660254037844387)),
+	13: AprilTagDefinition(13, 165.1, Vector3(11.220196, 4.105148, 1.3208), Quaternion(0., 0., 1., 0.)),
+	14: AprilTagDefinition(14, 165.1, Vector3(5.320792, 4.105148, 1.3208), Quaternion(0., 0., 0., 1.)),
+	15: AprilTagDefinition(15, 165.1, Vector3(4.641342, 4.49834, 1.3208), Quaternion(0., 0., 0.8660254037844386, 0.5)),
+	16: AprilTagDefinition(16, 165.1, Vector3(4.641342, 3.713226, 1.3208), Quaternion(0., 0., 0.8660254037844386, -0.5)),
 }
 
 REEFSCAPE_2025_APRIL_TAGS = {
@@ -106,3 +110,106 @@ REEFSCAPE_2025_APRIL_TAGS = {
 	21: AprilTagDefinition(21, 165.1, Vector3(5.321046, 4.0259, 0.308102), Quaternion(0.0, 0.0, 0.0, 1.0)),
 	22: AprilTagDefinition(22, 165.1, Vector3(4.904739999999999, 3.3063179999999996, 0.308102), Quaternion(-0.0, 0.0, 0.49999999999999994, -0.8660254037844387)),
 }
+
+
+class AprilTagsFieldPose:
+	def __init__(self, red_id: int, blue_id: int, tags_definition):
+		self.__red_tag_nt = AprilTagsNetworkTable.get_tag(red_id)
+		self.__red_tag_def = tags_definition[red_id]
+
+		self.__blue_tag_nt = AprilTagsNetworkTable.get_tag(blue_id)
+		self.__blue_tag_def = tags_definition[blue_id]
+
+	def get_nt(self):
+		ally = Alliance.get_alliance()
+
+		if ally == Alliance.UNDEFINED:
+			return None
+		if ally == Alliance.RED:
+			return self.__red_tag_nt
+		if ally == Alliance.BLUE:
+			return self.__blue_tag_nt
+
+	def get_def(self) -> AprilTagDefinition:
+		ally = Alliance.get_alliance()
+
+		if ally == Alliance.UNDEFINED:
+			return None
+		if ally == Alliance.RED:
+			return self.__red_tag_def
+		if ally == Alliance.BLUE:
+			return self.__blue_tag_def
+
+	def get_id(self) -> int:
+		return self.get_def().id
+
+	def is_detected(self) -> bool:
+		return self.get_nt().is_detected()
+
+
+class AprilTagsBaseField:
+	__INSTANCE__: 'AprilTagsBaseField' = None
+
+	@classmethod
+	def instance(cls) -> Any:
+		if cls.__INSTANCE__ is None:
+			cls.__INSTANCE__ = cls()
+
+		return cls.__INSTANCE__
+
+
+class AprilTagsReefscapeField(AprilTagsBaseField):
+	def __init__(self):
+		self.__reef_tags = [
+			AprilTagsFieldPose(10, 21, REEFSCAPE_2025_APRIL_TAGS),
+			AprilTagsFieldPose(9, 22, REEFSCAPE_2025_APRIL_TAGS),
+			AprilTagsFieldPose(8, 17, REEFSCAPE_2025_APRIL_TAGS),
+			AprilTagsFieldPose(7, 18, REEFSCAPE_2025_APRIL_TAGS),
+			AprilTagsFieldPose(6, 19, REEFSCAPE_2025_APRIL_TAGS),
+			AprilTagsFieldPose(11, 20, REEFSCAPE_2025_APRIL_TAGS)
+		]
+
+		self.__coral_station_tags = [
+			AprilTagsFieldPose(1, 13, REEFSCAPE_2025_APRIL_TAGS),
+			AprilTagsFieldPose(2, 12, REEFSCAPE_2025_APRIL_TAGS)
+		]
+
+		self.__cage_tags = [
+			AprilTagsFieldPose(5, 14, REEFSCAPE_2025_APRIL_TAGS),
+			AprilTagsFieldPose(4, 15, REEFSCAPE_2025_APRIL_TAGS)
+		]
+
+		self.__processor_tags = AprilTagsFieldPose(3, 16, REEFSCAPE_2025_APRIL_TAGS)
+
+	def __get_reef_tags__(self):
+		return self.__reef_tags
+	@staticmethod
+	def get_reef_tags():
+		return AprilTagsReefscapeField.instance().__get_reef_tags__()
+
+	def __get_coral_station_tags__(self):
+		return self.__coral_station_tags
+	@staticmethod
+	def get_coral_station_tags__():
+		return AprilTagsReefscapeField.instance().__get_coral_station_tags__()
+
+	def __get_cage_tags__(self):
+		return self.__cage_tags
+	@staticmethod
+	def get_cage_tags():
+		return AprilTagsReefscapeField.instance().__get_cage_tags__()
+
+	def __get_processor_tags__(self):
+		return self.__processor_tags
+	@staticmethod
+	def get_processor_tags():
+		return AprilTagsReefscapeField.instance().__get_processor_tags__()
+
+	@classmethod
+	def instance(cls) -> 'AprilTagsReefscapeField':
+		if AprilTagsNetworkTable.instance() is None:
+			AprilTagsNetworkTable(22)
+
+		return super(cls, cls).instance()
+
+

@@ -5,8 +5,26 @@ from .autonomous import AutonomousManager
 from .networktables import HarfangsDashboard
 
 from typing import Dict
+from enum import Enum
 
 import wpilib
+
+
+class Alliance(str, Enum):
+    RED = 'red'
+    BLUE = 'blue'
+    UNDEFINED = 'undefined'
+
+    @staticmethod
+    def get_alliance() -> 'Alliance':
+        alliance = wpilib.DriverStation.getAlliance()
+        if alliance is None:
+            return Alliance.UNDEFINED
+
+        if alliance == wpilib.DriverStation.Alliance.kRed:
+            return Alliance.RED
+        if alliance == wpilib.DriverStation.Alliance.kBlue:
+            return Alliance.BLUE
 
 
 class RobotBase(wpilib.TimedRobot):
