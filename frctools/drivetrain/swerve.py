@@ -161,7 +161,8 @@ class SwerveModule:
         steering = self.steering_controller.evaluate(left_dot)
 
         # Apply the command to the motors
-        self.steering_motor.set_voltage(steering)
+        #self.steering_motor.set_voltage(steering)
+        self.steering_motor.set(steering)
         self.drive_motor.set(drive)
 
     def get_stee_rangle_raw(self):

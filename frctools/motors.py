@@ -27,32 +27,43 @@ try:
             super().__init__(can_id, __motor_type_from_bool__(brushless))
 
             self.__encoder = self.getEncoder()
+            self.__inverted = inverted
 
             self.__config = SparkMaxConfig()
             self.__config.setIdleMode(__brake_from_bool__(brake))
-            self.setInverted(inverted)
+            #self.__config.setInverted(inverted)
+            #self.setInverted(inverted)
 
-            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
-
+            self.__apply_config__()
 
         def get(self) -> float:
             return self.__encoder.getVelocity()
+        def set(self, speed: float):
+            super().set(speed * (-1 if self.__inverted else 1))
 
         def set_voltage(self, voltage: float):
-            self.setVoltage(voltage)
+            self.setVoltage(voltage * (-1 if self.__inverted else 1))
         def get_voltage(self) -> float:
             return self.getBusVoltage()
 
         def set_brake(self, brake: bool):
             self.__config.setIdleMode(__brake_from_bool__(brake))
-            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+            self.__apply_config__()
         def get_brake(self) -> bool:
             return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
 
         def set_inverted(self, inverted: bool):
-            self.setInverted(inverted)
+            self.__inverted = inverted
+            #self.__config.setInverted(inverted)
+            #self.setInverted(inverted)
+
+            #self.__apply_config__()
         def get_inverted(self) -> bool:
-            return self.getInverted()
+            return self.__inverted
+            #return self.getInverted()
+
+        def __apply_config__(self):
+            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
 
 
     class WPI_CANSparkFlex(SparkFlex):
@@ -60,18 +71,22 @@ try:
             super().__init__(can_id, __motor_type_from_bool__(brushless))
 
             self.__encoder = self.getEncoder()
+            self.__inverted = inverted
 
             self.__config = SparkFlexConfig()
             self.__config.setIdleMode(__brake_from_bool__(brake))
-            self.setInverted(inverted)
+            #self.__config.setInverted(inverted)
+            #self.setInverted(inverted)
 
-            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+            self.__apply_config__()
 
         def get(self) -> float:
             return self.__encoder.getVelocity()
+        def set(self, speed: float):
+            super().set(speed * (-1 if self.__inverted else 1))
 
         def set_voltage(self, voltage: float):
-            self.setVoltage(voltage)
+            self.setVoltage(voltage * (-1 if self.__inverted else 1))
 
         def get_voltage(self) -> float:
             return self.getBusVoltage()
@@ -84,10 +99,14 @@ try:
             return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
 
         def set_inverted(self, inverted: bool):
-            self.setInverted(inverted)
-
+            self.__inverted = inverted
+            #self.setInverted(inverted)
         def get_inverted(self) -> bool:
-            return self.getInverted()
+            return self.__inverted
+            #return self.getInverted()
+
+        def __apply_config__(self):
+            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
 
 except ImportError:
     class WPI_CANSparkMax:
