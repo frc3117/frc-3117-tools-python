@@ -26,7 +26,13 @@ class AprilTagDefinition:
 
 	@property
 	def rotation(self):
-		return self.rotation
+		return self.__rotation
+
+	def __str__(self):
+		return f'id:{self.id}, size:{self.size}, position:{self.position}, rotation:{self.rotation}'
+
+	def __repr__(self):
+		return f'AprilTagDefinition({str(self)})'
 
 
 RAPIDREACT_2022_APRIL_TAGS = {
@@ -120,31 +126,43 @@ class AprilTagsFieldPose:
 		self.__blue_tag_nt = AprilTagsNetworkTable.get_tag(blue_id)
 		self.__blue_tag_def = tags_definition[blue_id]
 
-	def get_nt(self):
-		ally = Alliance.get_alliance()
+		self.__current_nt = None
+		self.__current_def = None
 
-		if ally == Alliance.UNDEFINED:
-			return None
-		if ally == Alliance.RED:
-			return self.__red_tag_nt
-		if ally == Alliance.BLUE:
-			return self.__blue_tag_nt
+	@property
+	def nt(self):
+		return self.__current_nt
 
-	def get_def(self) -> AprilTagDefinition:
-		ally = Alliance.get_alliance()
+	@property
+	def definition(self) -> AprilTagDefinition:
+		return self.__current_def
 
-		if ally == Alliance.UNDEFINED:
-			return None
-		if ally == Alliance.RED:
-			return self.__red_tag_def
-		if ally == Alliance.BLUE:
-			return self.__blue_tag_def
+	@property
+	def id(self) -> int:
+		return self.definition.id
 
-	def get_id(self) -> int:
-		return self.get_def().id
-
+	@property
 	def is_detected(self) -> bool:
-		return self.get_nt().is_detected()
+		return self.nt.is_detected()
+
+	def refresh_alliance(self):
+		ally = Alliance.get_alliance()
+
+		if ally == Alliance.UNDEFINED:
+			self.__current_nt = None
+			self.__current_def = None
+		elif  ally == Alliance.RED:
+			self.__current_nt = self.__red_tag_nt
+			self.__current_def = self.__red_tag_def
+		elif ally == Alliance.BLUE:
+			self.__current_nt = self.__blue_tag_nt
+			self.__current_def = self.__blue_tag_def
+
+	def __str__(self):
+		return f'red:{self.__red_tag_def.id} blue:{self.__blue_tag_def.id}'
+
+	def __repr__(self):
+		return f'AprilTagsFieldPose({str(self)})'
 
 
 class AprilTagsBaseField:
@@ -204,6 +222,21 @@ class AprilTagsReefscapeField(AprilTagsBaseField):
 	@staticmethod
 	def get_processor_tags():
 		return AprilTagsReefscapeField.instance().__get_processor_tags__()
+
+	def __refresh_alliance__(self):
+		for t in self.__reef_tags:
+			t.refresh_alliance()
+
+		for t in self.__coral_station_tags:
+			t.refresh_alliance()
+
+		for t in self.__cage_tags:
+			t.refresh_alliance()
+
+		self.__processor_tags.refresh_alliance()
+	@staticmethod
+	def refresh_alliance():
+		AprilTagsReefscapeField.instance().__refresh_alliance__()
 
 	@classmethod
 	def instance(cls) -> 'AprilTagsReefscapeField':

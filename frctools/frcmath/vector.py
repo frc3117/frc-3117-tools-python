@@ -261,28 +261,54 @@ class Vector3(VectorBase):
 
 class Vector4(VectorBase):
     def __init__(self, x: float = 0, y: float = 0, z: float = 0, w: float = 0):
-        super().__init__()
-        
-        self.x = float(x)
-        self.y = float(y)
-        self.z = float(z)
-        self.w = float(w)
+        super().__init__(float(x), float(y), float(z), float(w))
 
     # --- Vector Methods ---
 
     # --- Operators Overloads ---
+    @property
+    def x(self) -> float:
+        return self[0]
+
+    @x.setter
+    def x(self, value: float):
+        self[0] = value
+        self.__refresh_magnitude__()
+
+    @property
+    def y(self) -> float:
+        return self[1]
+
+    @y.setter
+    def y(self, value: float):
+        self[1] = value
+        self.__refresh_magnitude__()
+
+    @property
+    def z(self) -> float:
+        return self[2]
+
+    @z.setter
+    def z(self, value: float):
+        self[2] = value
+        self.__refresh_magnitude__()
+
+    @property
+    def w(self) -> float:
+        return self[3]
+
+    @w.setter
+    def w(self, value: float):
+        self[3] = value
+        self.__refresh_magnitude__()
+
     def __len__(self):
         return 4
 
 
 class Quaternion(VectorBase):
     def __init__(self, x: float, y: float, z: float, w: float):
-        super().__init__()
-
-        self.x = x
-        self.y = y
-        self.z = z
-        self.w = w
+        super().__init__(float(x), float(y), float(z), float(w))
 
     @staticmethod
     def from_euler(euler) -> 'Quaternion':
@@ -317,32 +343,41 @@ class Quaternion(VectorBase):
 
     # TODO: Add Custom Quaternion Operators
 
-    def __getitem__(self, item):
-        if isinstance(item, slice):
-            return [self[i] for i in range(len(self))[item]]
+    @property
+    def x(self) -> float:
+        return self[0]
 
-        if item == 0:
-            return self.x
-        elif item == 1:
-            return self.y
-        elif item == 2:
-            return self.z
-        elif item == 3:
-            return self.w
+    @x.setter
+    def x(self, value: float):
+        self[0] = value
+        self.__refresh_magnitude__()
 
-        raise IndexError(f"Index {item} out of range for Quaternion.")
+    @property
+    def y(self) -> float:
+        return self[1]
 
-    def __setitem__(self, key, value):
-        if key == 0:
-            self.x = value
-        elif key == 1:
-            self.y = value
-        elif key == 2:
-            self.z = value
-        elif key == 3:
-            self.w = value
-        else:
-            raise IndexError(f"Index {key} out of range for Quaternion.")
+    @y.setter
+    def y(self, value: float):
+        self[1] = value
+        self.__refresh_magnitude__()
+
+    @property
+    def z(self) -> float:
+        return self[2]
+
+    @z.setter
+    def z(self, value: float):
+        self[2] = value
+        self.__refresh_magnitude__()
+
+    @property
+    def w(self) -> float:
+        return self[3]
+
+    @w.setter
+    def w(self, value: float):
+        self[3] = value
+        self.__refresh_magnitude__()
 
     def __len__(self):
         return 4
