@@ -145,6 +145,22 @@ class AprilTagsFieldPose:
 	def is_detected(self) -> bool:
 		return self.nt.is_detected()
 
+	@property
+	def relative_position(self) -> Vector3:
+		return Vector3.from_list(self.nt.get_position())
+
+	@property
+	def absolute_position(self) -> Vector3:
+		raise NotImplementedError()
+
+	@property
+	def relative_rotation(self) -> Quaternion:
+		return Quaternion.from_list(self.nt.get_rotation())
+
+	@property
+	def absolute_rotation(self) -> Quaternion:
+		raise NotImplementedError()
+
 	def refresh_alliance(self):
 		ally = Alliance.get_alliance()
 
@@ -177,45 +193,127 @@ class AprilTagsBaseField:
 
 
 class AprilTagsReefscapeField(AprilTagsBaseField):
+	class Reef:
+		def __init__(self):
+			self.__tags = [
+				AprilTagsFieldPose(10, 21, REEFSCAPE_2025_APRIL_TAGS),
+				AprilTagsFieldPose(9, 22, REEFSCAPE_2025_APRIL_TAGS),
+				AprilTagsFieldPose(8, 17, REEFSCAPE_2025_APRIL_TAGS),
+				AprilTagsFieldPose(7, 18, REEFSCAPE_2025_APRIL_TAGS),
+				AprilTagsFieldPose(6, 19, REEFSCAPE_2025_APRIL_TAGS),
+				AprilTagsFieldPose(11, 20, REEFSCAPE_2025_APRIL_TAGS)
+			]
+
+		@property
+		def a(self):
+			return self.__tags[0]
+
+		@property
+		def b(self):
+			return self.__tags[1]
+
+		@property
+		def c(self):
+			return self.__tags[2]
+
+		@property
+		def d(self):
+			return self.__tags[3]
+
+		@property
+		def e(self):
+			return self.__tags[4]
+
+		@property
+		def f(self):
+			return self.__tags[5]
+
+		@property
+		def all(self):
+			return self.__tags
+
+		def __getitem__(self, item):
+			return self.__tags[item]
+
+		def __iter__(self):
+			for tag in self.__tags:
+				yield tag
+
+	class CoralStation:
+		def __init__(self):
+			self.__tags = [
+				AprilTagsFieldPose(1, 13, REEFSCAPE_2025_APRIL_TAGS),
+				AprilTagsFieldPose(2, 12, REEFSCAPE_2025_APRIL_TAGS)
+			]
+
+		@property
+		def left(self):
+			return self.__tags[0]
+
+		@property
+		def right(self):
+			return self.__tags[1]
+
+		@property
+		def all(self):
+			return self.__tags
+
+		def __getitem__(self, item):
+			return self.__tags[item]
+
+		def __iter__(self):
+			for tag in self.__tags:
+				yield tag
+
+	class Cage:
+		def __init__(self):
+			self.__tags = [
+				AprilTagsFieldPose(5, 14, REEFSCAPE_2025_APRIL_TAGS),
+				AprilTagsFieldPose(4, 15, REEFSCAPE_2025_APRIL_TAGS)
+			]
+
+		@property
+		def left(self):
+			return self.__tags[0]
+
+		@property
+		def right(self):
+			return self.__tags[1]
+
+		@property
+		def all(self):
+			return self.__tags
+
+		def __getitem__(self, item):
+			return self.__tags[item]
+
+		def __iter__(self):
+			for tag in self.__tags:
+				yield tag
+
 	def __init__(self):
-		self.__reef_tags = [
-			AprilTagsFieldPose(10, 21, REEFSCAPE_2025_APRIL_TAGS),
-			AprilTagsFieldPose(9, 22, REEFSCAPE_2025_APRIL_TAGS),
-			AprilTagsFieldPose(8, 17, REEFSCAPE_2025_APRIL_TAGS),
-			AprilTagsFieldPose(7, 18, REEFSCAPE_2025_APRIL_TAGS),
-			AprilTagsFieldPose(6, 19, REEFSCAPE_2025_APRIL_TAGS),
-			AprilTagsFieldPose(11, 20, REEFSCAPE_2025_APRIL_TAGS)
-		]
-
-		self.__coral_station_tags = [
-			AprilTagsFieldPose(1, 13, REEFSCAPE_2025_APRIL_TAGS),
-			AprilTagsFieldPose(2, 12, REEFSCAPE_2025_APRIL_TAGS)
-		]
-
-		self.__cage_tags = [
-			AprilTagsFieldPose(5, 14, REEFSCAPE_2025_APRIL_TAGS),
-			AprilTagsFieldPose(4, 15, REEFSCAPE_2025_APRIL_TAGS)
-		]
-
+		self.__reef = AprilTagsReefscapeField.Reef()
+		self.__coral_station = AprilTagsReefscapeField.CoralStation()
+		self.__cage = AprilTagsReefscapeField.Cage()
 		self.__processor_tags = AprilTagsFieldPose(3, 16, REEFSCAPE_2025_APRIL_TAGS)
 
-	def __get_reef_tags__(self):
-		return self.__reef_tags
+	def __get_reef__(self):
+		return self.__reef
 	@staticmethod
-	def get_reef_tags():
-		return AprilTagsReefscapeField.instance().__get_reef_tags__()
+	def get_reef():
+		return AprilTagsReefscapeField.instance().__get_reef__()
 
-	def __get_coral_station_tags__(self):
-		return self.__coral_station_tags
+	def __get_coral_station__(self):
+		return self.__coral_station
 	@staticmethod
-	def get_coral_station_tags__():
-		return AprilTagsReefscapeField.instance().__get_coral_station_tags__()
+	def get_coral_station():
+		return AprilTagsReefscapeField.instance().__get_coral_station__()
 
-	def __get_cage_tags__(self):
-		return self.__cage_tags
+	def __get_cage__(self):
+		return self.__cage
 	@staticmethod
-	def get_cage_tags():
-		return AprilTagsReefscapeField.instance().__get_cage_tags__()
+	def get_cage():
+		return AprilTagsReefscapeField.instance().__get_cage__()
 
 	def __get_processor_tags__(self):
 		return self.__processor_tags
@@ -224,13 +322,13 @@ class AprilTagsReefscapeField(AprilTagsBaseField):
 		return AprilTagsReefscapeField.instance().__get_processor_tags__()
 
 	def __refresh_alliance__(self):
-		for t in self.__reef_tags:
+		for t in self.__reef:
 			t.refresh_alliance()
 
-		for t in self.__coral_station_tags:
+		for t in self.__coral_station:
 			t.refresh_alliance()
 
-		for t in self.__cage_tags:
+		for t in self.__cage:
 			t.refresh_alliance()
 
 		self.__processor_tags.refresh_alliance()

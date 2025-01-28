@@ -17,7 +17,7 @@ try:
             self.__deck = deck
             self.__key = key_id
 
-            self.__img = self.generate_img()
+            self.update_img()
 
         def handle_pressed(self):
             if self.pressed_callback:
@@ -37,8 +37,18 @@ try:
                 self.__img = None
 
         def generate_img(self):
-            img = PILHelper.create_key_image(deck=self.__deck, background='white')
-            return PILHelper.to_native_key_format(self.__deck, img)
+            return self.create_img('white')
+
+        def create_img(self, background):
+            if isinstance(background, (str, tuple)):
+                return PILHelper.create_key_image(self.__deck, background)
+            else:
+                print(background)
+                return  PILHelper.create_scaled_key_image(self.__deck, background)
+
+        def update_img(self):
+            self.__img = PILHelper.to_native_key_format(self.__deck, self.generate_img())
+
 except ImportError:
     class StreamDeckKey:
         def __init__(self, *args, **kwargs):

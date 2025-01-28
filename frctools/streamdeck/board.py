@@ -41,10 +41,18 @@ try:
 
         def __update__(self):
             held_keys = [False] * self.device.key_count()
+            pressed_keys = [False] * self.device.key_count()
+            released_keys = [False] * self.device.key_count()
 
             def key_callback(deck, key_id, state):
                 if self.device != deck:
                     return  # Ignore events from other devices
+
+                last_state = held_keys[key_id]
+                if not last_state and state:
+                    pressed_keys[key_id] = True
+                elif last_state and not state:
+                    released_keys[key_id] = True
 
                 held_keys[key_id] = state
 
@@ -56,6 +64,12 @@ try:
                     if key is None:
                         continue
 
+                    if pressed_keys[i]:
+                        pressed_keys[i] = False
+                        key.handle_pressed()
+                    if released_keys[i]:
+                        released_keys[i] = False
+                        key.handle_released()
                     if held_keys[i]:
                         key.handle_held()
 

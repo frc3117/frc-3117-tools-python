@@ -341,6 +341,39 @@ class Quaternion(VectorBase):
 
         return Vector3(x, y, z)
 
+    @staticmethod
+    def from_rotation_matrix(mtx) -> 'Quaternion':
+        quat = Quaternion(0, 0, 0, 0)
+
+        trace = mtx[0][0] + mtx[1][1] + mtx[2][2]
+        if trace > 0:
+            trace = math.sqrt(trace + 1.0)
+            quat.w = 0.5 * trace
+            trace = 0.5 / trace
+
+            quat.x = (mtx[2][1] - mtx[1][2]) * trace
+            quat.y = (mtx[0][2] - mtx[2][0]) * trace
+            quat.z = (mtx[1][0] - mtx[0][1]) * trace
+        else:
+            i = 0
+            if mtx[1][1] > mtx[0][0]:
+                i = 1
+            if mtx[2][2] > mtx[i][i]:
+                i = 2
+
+            j = (i + 1) % 3
+            k = (j + 1) % 3
+
+            trace = math.sqrt(mtx[i][i] - mtx[j][j] - mtx[k][k] + 1)
+            quat[i] = 0.5 * trace
+            trace = 0.5 / trace
+
+            quat[3]  = (mtx[k][j] - mtx[j][k]) * trace
+            quat[j] = (mtx[j][i] - mtx[i][j]) * trace
+            quat[k] = (mtx[k][i] - mtx[i][k]) * trace
+
+        return quat
+
     # TODO: Add Custom Quaternion Operators
 
     @property
