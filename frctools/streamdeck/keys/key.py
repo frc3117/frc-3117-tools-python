@@ -1,6 +1,13 @@
 try:
     from StreamDeck.ImageHelpers import PILHelper
+    from PIL import ImageDraw, ImageFont
 
+    import os
+
+    __DIR__ = os.path.dirname(os.path.realpath(__file__))
+
+    LABEL_FONT = ImageFont.truetype(f'{__DIR__}/Futura.ttc', 12)
+    VALUE_FONT = ImageFont.truetype(f'{__DIR__}/Geneva.ttf', 15)
 
     class StreamDeckKey:
         def __init__(self, pressed_callback=None, released_callback=None, held_callback=None):
@@ -39,12 +46,19 @@ try:
         def generate_img(self):
             return self.create_img('white')
 
-        def create_img(self, background):
+        def create_img(self, background, label: str = None, value: str = None):
             if isinstance(background, (str, tuple)):
-                return PILHelper.create_key_image(self.__deck, background)
+                img = PILHelper.create_key_image(self.__deck, background)
             else:
-                print(background)
-                return  PILHelper.create_scaled_key_image(self.__deck, background)
+                img = PILHelper.create_scaled_key_image(self.__deck, background)
+
+            draw = ImageDraw.Draw(img)
+            if label is not None:
+                draw.text((img.width / 2, (img.height - 15)), text=label, font=LABEL_FONT, anchor='ms', align='center')
+            if value is not None:
+                draw.text((img.width / 2, (img.height / 2) - 5), text=value, font=VALUE_FONT, anchor='ms', align='center')
+
+            return img
 
         def update_img(self):
             self.__img = PILHelper.to_native_key_format(self.__deck, self.generate_img())
