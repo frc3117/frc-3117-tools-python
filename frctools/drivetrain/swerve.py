@@ -55,7 +55,8 @@ class SwerveModule:
                  steering_encoder,
                  steering_controller,
                  steering_offset,
-                 position: Vector2):
+                 position: Vector2,
+                 cosine_compensation: bool = False):
 
         self.drive_motor = drive_motor
 
@@ -65,6 +66,7 @@ class SwerveModule:
         self.steering_offset = steering_offset
 
         self.speed = 1.
+        self.cosine_compensation = cosine_compensation
 
         self.rotation_vector = Vector2(position.y, -position.x).normalize()
 
@@ -105,6 +107,9 @@ class SwerveModule:
 
     def set_speed(self, speed: float):
         self.speed = speed
+
+    def set_cosine_compensation(self, cosine_compensation: bool):
+        self.cosine_compensation = cosine_compensation
 
     def __compute_vectors__(self):
         # Compute the translation and rotation vectors
@@ -159,6 +164,9 @@ class SwerveModule:
 
         # Evaluate the output of the steering pid controller
         steering = self.steering_controller.evaluate(left_dot)
+
+        if self.cosine_compensation:
+            drive *= 1 - abs(left_dot)
 
         # Apply the command to the motors
         #self.steering_motor.set_voltage(steering)
@@ -254,6 +262,10 @@ class SwerveDrive(Component):
     def set_speed(self, speed: float):
         for mod in self.modules:
             mod.set_speed(speed)
+
+    def set_cosine_compensation(self, cosine_compensation: bool):
+        for mod in self.modules:
+            mod.set_cosine_compensation(cosine_compensation)
 
     def set_drive_mode(self, mode:  SwerveDriveMode):
         self.drive_mode = mode
