@@ -211,12 +211,37 @@ class Timer:
 
     @staticmethod
     def wait_for_frame(frame: int):
+        if frame <= 0:
+            yield from ()
+
         start_frame = Timer.get_frame_count()
         while Timer.get_elapsed_frame(start_frame) < frame:
             yield None
 
     @staticmethod
     def wait_for_seconds(seconds: float):
+        if seconds <= 0.:
+            yield from ()
+
         start_time = Timer.get_current_time()
         while Timer.get_elapsed(start_time) < seconds:
             yield None
+
+    @staticmethod
+    def wait_parallel(*coroutines):
+        yield from ()
+        cor_ls = [[True, x] for x in coroutines]
+
+        still_running = True
+        while still_running:
+            still_running = False
+            for cor in cor_ls:
+                if cor[0]:
+                    try:
+                        next(cor[1])
+                        still_running = True
+                    except StopIteration:
+                        cor[0] = False
+
+            if still_running:
+                yield None
