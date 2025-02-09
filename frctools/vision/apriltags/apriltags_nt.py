@@ -10,6 +10,9 @@ class AprilTagEntry:
 
         parent_path = f'/SmartDashboard/AprilTags/{id}'
 
+        self.__cam_id = -1
+        self.__cam_id_entry: NetworkTableEntry = nt_instance.getEntry(f'{parent_path}/cam_id')
+
         self.__position = Vector3(0, 0, 0)
         self.__position_entry: NetworkTableEntry = nt_instance.getEntry(f'{parent_path}/position')
         nt_instance.addListener(self.__position_entry, EventFlags.kValueAll, self.__on_pos_update__)
@@ -25,6 +28,11 @@ class AprilTagEntry:
         self.__is_detected = False
         self.__is_detected_entry: NetworkTableEntry = nt_instance.getEntry(f'{parent_path}/is_detected')
         nt_instance.addListener(self.__is_detected_entry, EventFlags.kValueAll, self.__on_detected_update__)
+
+    def get_cam_id(self) -> int:
+        return self.__cam_id
+    def set_cam_id(self, cam_id: int):
+        self.__cam_id_entry.setInteger(cam_id)
 
     def get_position(self):
         return self.__position
@@ -71,12 +79,18 @@ class AprilTagsNetworkTable:
     def __call__(self, detections):
         detected_id = []
         for d in detections:
+            if isinstance(d, tuple):
+                cam_id, d = d
+            else:
+                cam_id = -1
+
             id = d.tag_id - 1
             tag = self.tags[id]
 
             detected_id.append(id)
 
             tag.set_detected(True)
+            tag.set_cam_id(cam_id)
             tag.set_position(Vector3(d.pose_t[0][0], d.pose_t[1][0], d.pose_t[2][0]))
             tag.set_rotation(Quaternion.from_rotation_matrix(d.pose_R))
             tag.set_center(Vector2.from_list(d.center))
