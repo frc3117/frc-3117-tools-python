@@ -42,7 +42,7 @@ class AprilTagEntry:
     def get_rotation(self):
         return self.__rotation
     def set_rotation(self, rotation):
-        self.__rotation_entry.setDoubleArray([rotation[0], rotation[1], rotation[2]])
+        self.__rotation_entry.setDoubleArray([rotation[0], rotation[1], rotation[2], rotation[3]])
 
     def get_center(self):
         return self.__center
