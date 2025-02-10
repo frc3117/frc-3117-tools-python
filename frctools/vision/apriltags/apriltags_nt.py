@@ -85,7 +85,11 @@ class AprilTagsNetworkTable:
                 cam_id = -1
 
             id = d.tag_id - 1
-            tag = self.tags[id]
+            try:
+                tag = self.tags[id]
+            except IndexError:
+                print(f'Tag {id} does not exist')
+                continue
 
             detected_id.append(id)
 
