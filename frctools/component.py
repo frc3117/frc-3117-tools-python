@@ -1,7 +1,13 @@
+from frctools import RobotBase
+
 import wpiutil
 
 
 class Component(wpiutil.Sendable):
+    @property
+    def robot(self):
+        return RobotBase.instance()
+
     def init_auto(self):
         pass
 
