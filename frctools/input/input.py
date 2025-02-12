@@ -139,6 +139,18 @@ class Input(wpiutil.Sendable):
     def override(self, value):
         self.__current_value = value
 
+    def wait_until(self, mode: str = 'press'):
+        yield from ()
+        if mode == 'press':
+            while not self.get():
+                yield None
+        elif mode == 'up':
+            while not self.get_button_up():
+                yield None
+        elif mode == 'down':
+            while not self.get_button_down():
+                yield None
+
     def __get_button__(self) -> bool:
         if self.__irl_mode__ == Input.BUTTON_MODE:
             return Input.__joysticks__[self.joystick_id].getRawButton(self.input_id)
@@ -242,8 +254,8 @@ class Input(wpiutil.Sendable):
         return cls.__inputs__[name]
 
     @classmethod
-    def get_inputs(self):
-        return Input.__inputs__
+    def get_inputs(cls):
+        return cls.__inputs__
 
     @staticmethod
     def init():
