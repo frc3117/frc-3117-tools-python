@@ -62,7 +62,7 @@ class CANDigitalInput:
 
     def get(self) -> bool:
         digital_flags = self.__can_carry.__get_digital_flags__()
-        return (digital_flags << (63 - self.sensor_id)) < 0
+        return digital_flags & (1 << self.sensor_id) > 0
 
 
 class CANAnalogInput:
