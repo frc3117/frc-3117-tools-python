@@ -1,12 +1,11 @@
-from frctools import RobotBase
-
+import frctools
 import wpiutil
 
 
 class Component(wpiutil.Sendable):
     @property
     def robot(self):
-        return RobotBase.instance()
+        return frctools.RobotBase.instance()
 
     def init_auto(self):
         pass
