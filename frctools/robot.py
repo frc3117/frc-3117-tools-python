@@ -123,8 +123,10 @@ class RobotBase(wpilib.TimedRobot):
     def add_logger(self, logger):
         self.__loggers.append(logger)
 
-    def __index__(self, index: str) -> Component:
+    def __getitem__(self, index: str) -> Component:
         return self.get_component(index)
+    def __setitem__(self, key: str, value: Component):
+        self.add_component(key, value)
 
     @staticmethod
     def instance():

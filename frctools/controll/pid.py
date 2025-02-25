@@ -34,7 +34,7 @@ class PID(wpiutil.Sendable):
             dt = Timer.get_delta_time()
 
         derivative = (self.__previous_error - error) / dt
-        self.__integral += error * dt
+        self.__integral += self.ki * error * dt
         self.__previous_error = error
 
         if self.__integral_range is not None:
@@ -46,9 +46,12 @@ class PID(wpiutil.Sendable):
         if self.__feed_forward is not None:
             ff = self.__feed_forward(feed_forward)
         else:
-            ff = 0
+            ff = feed_forward
 
-        return self.kp * error + self.ki * self.__integral + self.kd * derivative + self.kf * ff
+        return self.kp * error + self.__integral + self.kd * derivative + self.kf * ff
+
+    def reset_integral(self):
+        self.__integral = 0.
 
     def __get_kp(self):
         return self.kp
@@ -78,6 +81,4 @@ class PID(wpiutil.Sendable):
         builder.addDoubleProperty(f'{prefix}Kp', self.__get_kp, self.__set_kp)
         builder.addDoubleProperty(f'{prefix}Ki', self.__get_ki, self.__set_ki)
         builder.addDoubleProperty(f'{prefix}Kd', self.__get_kd, self.__set_kd)
-
-        if self.__feed_forward is not None:
-            builder.addDoubleProperty(f'{prefix}Kf', self.__get_kf, self.__set_kf)
+        builder.addDoubleProperty(f'{prefix}Kf', self.__get_kf, self.__set_kf)
