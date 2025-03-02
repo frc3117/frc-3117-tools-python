@@ -412,6 +412,27 @@ class Quaternion(VectorBase):
         self[3] = value
         self.__refresh_magnitude__()
 
+    @property
+    def conjugate(self):
+        norm = self.normalized()
+        return Quaternion(-norm.x, -norm.y, -norm.z, norm.w)
+
+    def __mul__(self, other):
+        if isinstance(other, Quaternion):
+            return Quaternion(
+                (self.w * other.x) + (self.x * other.w) + (self.y * other.z) - (self.z * other.y),
+                (self.w * other.y) - (self.x * other.z) + (self.y * other.w) + (self.z * other.x),
+                (self.w * other.z) + (self.x * other.y) - (self.y * other.x) + (self.z * other.w),
+                (self.w * other.w) - (self.x * other.x) - (self.y * other.y) - (self.z * other.z)
+            )
+        if isinstance(other, Vector3):
+            q_conj = self.conjugate
+            v_quat = Quaternion(other.x, other.y, other.z, 0)
+
+            rot = (self * v_quat) * q_conj
+
+            return Vector3(rot.x, rot.y, rot.z)
+
     def __len__(self):
         return 4
 

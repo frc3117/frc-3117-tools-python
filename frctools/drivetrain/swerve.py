@@ -211,6 +211,7 @@ class SwerveDrive(Component):
 
         self.imu_offset = imu_offset
         self.heading_offset = 0.
+        self.local_offset = 0.
         self.set_current_heading(start_heading)
 
         self.horizontal: Input = Input.get_input('horizontal')
@@ -254,6 +255,8 @@ class SwerveDrive(Component):
     def __update_centric__(self, use_heading: bool):
         if use_heading:
             self.__translation = self.__translation.rotate(self.get_heading())
+        else:
+            self.__translation = self.__translation.rotate(self.local_offset)
 
         for mod in self.modules:
             mod.update(self.__translation,
@@ -281,6 +284,9 @@ class SwerveDrive(Component):
 
     def zero_heading(self):
         self.set_current_heading(0.)
+
+    def set_local_offset(self, offset: float):
+        self.local_offset = offset
 
     def initSendable(self, builder: wpiutil.SendableBuilder):
         builder.addDoubleProperty('heading', self.get_heading, lambda v: None)
