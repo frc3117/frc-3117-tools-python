@@ -9,6 +9,7 @@ class CoroutineOrder(int, Enum):
     EARLY = 0
     NORMAL = 1
     LATE = 2
+    ALLWAYS = 3
 
 
 class Coroutine:
@@ -59,6 +60,48 @@ class Period(IntFlag):
         return self & flag == flag
 
 
+class ConcurrentEvent:
+    class Block:
+        def __init__(self, event: 'ConcurrentEvent'):
+            self.__event = event
+            self.__ready = False
+            self.__consumed = False
+
+        def set(self):
+            self.__ready = True
+
+        def is_ready(self):
+            if self.__ready and not self.__consumed:
+                self.__event.remove_block(self)
+                self.__consumed = True
+
+            return self.__ready
+
+        def wait(self):
+            yield from ()
+            while not self.is_ready():
+                yield None
+
+        def __iter__(self):
+            yield from self.wait()
+
+    def __init__(self):
+        self.__events = []
+
+    def create_block(self):
+        e = ConcurrentEvent.Block(self)
+        self.__events.append(e)
+
+        return e
+
+    def remove_block(self, block):
+        self.__events.remove(block)
+
+    def set(self):
+        for e in self.__events:
+            e.set()
+
+
 class Timer:
     __START_TIME = 0.
     __LAST_TIME = 0.
@@ -69,6 +112,8 @@ class Timer:
     __EARLY_COROUTINES: List['Coroutine'] = []
     __NORMAL_COROUTINES: List['Coroutine'] = []
     __LATE_COROUTINE: List['Coroutine'] = []
+
+    __ALLWAYS_COROUTINES: List['Coroutine'] = []
 
     @staticmethod
     def init():
@@ -104,13 +149,15 @@ class Timer:
             Timer.__NORMAL_COROUTINES.append(cor)
         elif order == CoroutineOrder.LATE:
             Timer.__LATE_COROUTINE.append(cor)
+        elif order == CoroutineOrder.ALLWAYS:
+            Timer.__ALLWAYS_COROUTINES.append(cor)
 
         return cor
 
     @staticmethod
-    def start_coroutine_if_stopped(coroutine, ref_coroutine: Coroutine, order: CoroutineOrder = CoroutineOrder.NORMAL) -> Coroutine:
+    def start_coroutine_if_stopped(coroutine, ref_coroutine: Coroutine, order: CoroutineOrder = CoroutineOrder.NORMAL, ignore_stop_all: bool = False) -> Coroutine:
         if ref_coroutine is None or ref_coroutine.is_done:
-            return Timer.start_coroutine(coroutine(), order)
+            return Timer.start_coroutine(coroutine(), order, ignore_stop_all)
 
         return ref_coroutine
 
@@ -118,12 +165,12 @@ class Timer:
     def stop_coroutine(coroutine: Coroutine):
         if coroutine.order == CoroutineOrder.EARLY:
             Timer.__EARLY_COROUTINES.remove(coroutine)
-
-        if coroutine.order == CoroutineOrder.NORMAL:
+        elif coroutine.order == CoroutineOrder.NORMAL:
             Timer.__NORMAL_COROUTINES.remove(coroutine)
-
-        if coroutine.order == CoroutineOrder.LATE:
+        elif coroutine.order == CoroutineOrder.LATE:
             Timer.__LATE_COROUTINE.remove(coroutine)
+        elif coroutine.order == CoroutineOrder.ALLWAYS:
+            Timer.__ALLWAYS_COROUTINES.remove(coroutine)
 
         coroutine.is_done = True
 
@@ -143,6 +190,11 @@ class Timer:
             if not cor.ignore_stop_all:
                 cor.is_done = True
                 Timer.__LATE_COROUTINE.remove(cor)
+
+        for cor in Timer.__ALLWAYS_COROUTINES:
+            if not cor.ignore_stop_all:
+                cor.is_done = True
+                Timer.__ALLWAYS_COROUTINES.remove(cor)
 
     @staticmethod
     def __do_coroutines__(coroutines: List[Coroutine]):
@@ -165,6 +217,10 @@ class Timer:
     @staticmethod
     def do_late_coroutines():
         Timer.__do_coroutines__(Timer.__LATE_COROUTINE)
+
+    @staticmethod
+    def do_allways_coroutines():
+        Timer.__do_coroutines__(Timer.__ALLWAYS_COROUTINES)
 
     @staticmethod
     def get_period() -> Period:

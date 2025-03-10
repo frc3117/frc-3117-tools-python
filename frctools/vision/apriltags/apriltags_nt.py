@@ -10,23 +10,25 @@ class AprilTagEntry:
 
         parent_path = f'/SmartDashboard/AprilTags/{id}'
 
-        self.__cam_id = -1
         self.__cam_id_entry: NetworkTableEntry = nt_instance.getEntry(f'{parent_path}/cam_id')
+        self.__cam_id = self.__cam_id_entry.getInteger(-1)
+        nt_instance.addListener(self.__cam_id_entry, EventFlags.kValueAll, self.__on_cam_id_update__)
 
-        self.__position = Vector3(0, 0, 0)
         self.__position_entry: NetworkTableEntry = nt_instance.getEntry(f'{parent_path}/position')
+        self.__position = Vector3.from_list(self.__position_entry.getDoubleArray([0, 0, 0]))
         nt_instance.addListener(self.__position_entry, EventFlags.kValueAll, self.__on_pos_update__)
 
-        self.__rotation = Quaternion(0, 0, 0, 0)
         self.__rotation_entry: NetworkTableEntry = nt_instance.getEntry(f'{parent_path}/rotation')
+        self.__rotation = Quaternion.from_list(self.__rotation_entry.getDoubleArray([0, 0, 0, 0]))
         nt_instance.addListener(self.__rotation_entry, EventFlags.kValueAll, self.__on_rot_update__)
 
-        self.__center = Vector2(0, 0 )
         self.__center_entry: NetworkTableEntry = nt_instance.getEntry(f'{parent_path}/center')
+        self.__center = Vector2.from_list(self.__center_entry.getDoubleArray([0, 0]))
         nt_instance.addListener(self.__center_entry, EventFlags.kValueAll, self.__on_center_update__)
 
         self.__is_detected = False
         self.__is_detected_entry: NetworkTableEntry = nt_instance.getEntry(f'{parent_path}/is_detected')
+        self.__is_detected = self.__is_detected_entry.getBoolean(False)
         nt_instance.addListener(self.__is_detected_entry, EventFlags.kValueAll, self.__on_detected_update__)
 
     def get_cam_id(self) -> int:
@@ -54,6 +56,8 @@ class AprilTagEntry:
     def set_detected(self, state: bool):
         self.__is_detected_entry.setBoolean(state)
 
+    def __on_cam_id_update__(self, event: Event):
+        self.__cam_id = event.data.value.getInteger()
     def __on_pos_update__(self, event: Event):
         self.__position = Vector3.from_list(event.data.value.getDoubleArray())
     def __on_rot_update__(self, event: Event):

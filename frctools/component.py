@@ -7,6 +7,12 @@ class Component(wpiutil.Sendable):
     def robot(self):
         return frctools.RobotBase.instance()
 
+    def init_disabled(self):
+        pass
+
+    def update_disabled(self):
+        pass
+
     def init_auto(self):
         pass
 
@@ -24,6 +30,7 @@ class Component(wpiutil.Sendable):
 
     def update(self):
         pass
+
 
     def initSendable(self, builder: wpiutil.SendableBuilder):
         pass

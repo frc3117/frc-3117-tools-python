@@ -5,7 +5,7 @@ import wpilib
 import wpiutil
 from wpilib import Joystick
 
-from frctools import frcmath, Timer, CoroutineOrder
+from frctools import frcmath, Timer, CoroutineOrder, Coroutine
 
 
 class XboxControllerInput(str, Enum):
@@ -43,6 +43,8 @@ class Input(wpiutil.Sendable):
     BUTTON_MODE = 0
     AXIS_MODE = 1
     COMPOSITE_AXIS_MODE = 2
+
+    __COROUTINE__: Coroutine
 
     __joysticks__: Dict[int, Joystick] = {}
     __inputs__: Dict[str, 'Input'] = {}
@@ -257,6 +259,10 @@ class Input(wpiutil.Sendable):
     def get_inputs(cls):
         return cls.__inputs__
 
-    @staticmethod
-    def init():
-        Timer.start_coroutine(Input.__input_coroutine__(), CoroutineOrder.EARLY, ignore_stop_all=True)
+    @classmethod
+    def do_coroutine(cls):
+        cls.__COROUTINE__.do_coroutine()
+
+    @classmethod
+    def init(cls):
+        cls.__COROUTINE__ = Coroutine(Input.__input_coroutine__(), CoroutineOrder.NORMAL, True)

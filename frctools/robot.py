@@ -52,6 +52,7 @@ class RobotBase(wpilib.TimedRobot):
 
     def robotPeriodic(self):
         Timer.evaluate()
+        Input.do_coroutine()
 
     def autonomousInit(self):
         self.__auto_manager.start_auto(self.__auto_selector.getSelected())
@@ -76,10 +77,13 @@ class RobotBase(wpilib.TimedRobot):
         pass
 
     def disabledInit(self):
-        pass
+        self.__component_init__(lambda comp: comp.init_disabled())
 
     def disabledPeriodic(self):
-        pass
+        for comp in self.__components.values():
+            comp.update_disabled()
+
+        Timer.do_allways_coroutines()
 
     def disabledExit(self):
         Timer.reset()
@@ -101,6 +105,9 @@ class RobotBase(wpilib.TimedRobot):
                 action(comp)
 
     def __component_update__(self, action):
+        if wpilib.DriverStation.isAutonomous():
+            self.__auto_manager.do_coroutine()
+
         Timer.do_early_coroutines()
 
         for name, comp in self.__components.items():
@@ -113,6 +120,7 @@ class RobotBase(wpilib.TimedRobot):
 
         Timer.do_coroutines()
         Timer.do_late_coroutines()
+        Timer.do_allways_coroutines()
 
     def add_auto(self, name: str, auto, default: bool = False):
         if default:

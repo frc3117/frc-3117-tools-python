@@ -1,8 +1,8 @@
 from frctools import Alliance
-from frctools.frcmath import Vector3, Quaternion
-from .apriltags_nt import AprilTagsNetworkTable
+from frctools.frcmath import Vector2, Vector3, Quaternion
+from .apriltags_nt import AprilTagsNetworkTable, AprilTagEntry
 
-from typing import Any
+from typing import Any, List
 
 
 class AprilTagDefinition:
@@ -130,7 +130,7 @@ class AprilTagsFieldPose:
 		self.__current_def = None
 
 	@property
-	def nt(self):
+	def nt(self) -> AprilTagEntry:
 		return self.__current_nt
 
 	@property
@@ -146,8 +146,12 @@ class AprilTagsFieldPose:
 		return self.nt.is_detected()
 
 	@property
+	def center(self) -> Vector2:
+		return self.nt.get_center()
+
+	@property
 	def relative_position(self) -> Vector3:
-		return Vector3.from_list(self.nt.get_position())
+		return self.nt.get_position()
 
 	@property
 	def absolute_position(self) -> Vector3:
@@ -155,7 +159,7 @@ class AprilTagsFieldPose:
 
 	@property
 	def relative_rotation(self) -> Quaternion:
-		return Quaternion.from_list(self.nt.get_rotation())
+		return self.nt.get_rotation()
 
 	@property
 	def absolute_rotation(self) -> Quaternion:
@@ -167,7 +171,7 @@ class AprilTagsFieldPose:
 		if ally == Alliance.UNDEFINED:
 			self.__current_nt = None
 			self.__current_def = None
-		elif  ally == Alliance.RED:
+		elif ally == Alliance.RED:
 			self.__current_nt = self.__red_tag_nt
 			self.__current_def = self.__red_tag_def
 		elif ally == Alliance.BLUE:
@@ -192,104 +196,91 @@ class AprilTagsBaseField:
 		return cls.__INSTANCE__
 
 
+class AprilTagsBaseFieldModule:
+	def __init__(self, tags: List[AprilTagsFieldPose]):
+		self.__tags = tags
+
+	@property
+	def all(self):
+		return self.__tags
+
+	@property
+	def detected(self):
+		return [x for x in self.__tags if x.is_detected]
+
+	def __getitem__(self, item):
+		return self.__tags[item]
+
+	def __iter__(self):
+		for tag in self.__tags:
+			yield tag
+
+
 class AprilTagsReefscapeField(AprilTagsBaseField):
-	class Reef:
+	class Reef(AprilTagsBaseFieldModule):
 		def __init__(self):
-			self.__tags = [
+			super().__init__([
 				AprilTagsFieldPose(10, 21, REEFSCAPE_2025_APRIL_TAGS),
 				AprilTagsFieldPose(9, 22, REEFSCAPE_2025_APRIL_TAGS),
 				AprilTagsFieldPose(8, 17, REEFSCAPE_2025_APRIL_TAGS),
 				AprilTagsFieldPose(7, 18, REEFSCAPE_2025_APRIL_TAGS),
 				AprilTagsFieldPose(6, 19, REEFSCAPE_2025_APRIL_TAGS),
 				AprilTagsFieldPose(11, 20, REEFSCAPE_2025_APRIL_TAGS)
-			]
+			])
 
 		@property
 		def a(self):
-			return self.__tags[0]
+			return self[0]
 
 		@property
 		def b(self):
-			return self.__tags[1]
+			return self[1]
 
 		@property
 		def c(self):
-			return self.__tags[2]
+			return self[2]
 
 		@property
 		def d(self):
-			return self.__tags[3]
+			return self[3]
 
 		@property
 		def e(self):
-			return self.__tags[4]
+			return self[4]
 
 		@property
 		def f(self):
-			return self.__tags[5]
+			return self[5]
 
-		@property
-		def all(self):
-			return self.__tags
-
-		def __getitem__(self, item):
-			return self.__tags[item]
-
-		def __iter__(self):
-			for tag in self.__tags:
-				yield tag
-
-	class CoralStation:
+	class CoralStation(AprilTagsBaseFieldModule):
 		def __init__(self):
-			self.__tags = [
+			super().__init__([
 				AprilTagsFieldPose(1, 13, REEFSCAPE_2025_APRIL_TAGS),
 				AprilTagsFieldPose(2, 12, REEFSCAPE_2025_APRIL_TAGS)
-			]
+			])
 
 		@property
 		def left(self):
-			return self.__tags[0]
+			return self[0]
 
 		@property
 		def right(self):
-			return self.__tags[1]
+			return self[1]
 
-		@property
-		def all(self):
-			return self.__tags
-
-		def __getitem__(self, item):
-			return self.__tags[item]
-
-		def __iter__(self):
-			for tag in self.__tags:
-				yield tag
-
-	class Cage:
+	class Cage(AprilTagsBaseFieldModule):
 		def __init__(self):
-			self.__tags = [
+			super().__init__([
 				AprilTagsFieldPose(5, 14, REEFSCAPE_2025_APRIL_TAGS),
 				AprilTagsFieldPose(4, 15, REEFSCAPE_2025_APRIL_TAGS)
-			]
+			])
 
 		@property
 		def left(self):
-			return self.__tags[0]
+			return self[0]
 
 		@property
 		def right(self):
-			return self.__tags[1]
-
-		@property
-		def all(self):
-			return self.__tags
-
-		def __getitem__(self, item):
-			return self.__tags[item]
-
-		def __iter__(self):
-			for tag in self.__tags:
-				yield tag
+			return self[1]
 
 	def __init__(self):
 		self.__reef = AprilTagsReefscapeField.Reef()
@@ -342,5 +333,3 @@ class AprilTagsReefscapeField(AprilTagsBaseField):
 			AprilTagsNetworkTable(22)
 
 		return super(cls, cls).instance()
-
-

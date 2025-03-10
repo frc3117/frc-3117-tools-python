@@ -225,7 +225,7 @@ class Vector3(VectorBase):
         )
 
     def angle(self, other: 'Vector3') -> float:
-        return math.acos(self.dot(other) / (self.magnitude() * other.magnitude()))
+        return math.acos(self.dot(other) / (self.magnitude * other.magnitude))
 
     # --- Operators Overloads ---
     @property

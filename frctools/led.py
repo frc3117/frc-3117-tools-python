@@ -76,8 +76,11 @@ class LED(Component):
 
         self.__coroutine = None
 
+    def update_disabled(self):
+        self.__coroutine = Timer.start_coroutine_if_stopped(self.__loop__, self.__coroutine, CoroutineOrder.ALLWAYS)
+
     def update(self):
-        self.__coroutine = Timer.start_coroutine_if_stopped(self.__loop__, self.__coroutine, CoroutineOrder.LATE)
+        self.__coroutine = Timer.start_coroutine_if_stopped(self.__loop__, self.__coroutine, CoroutineOrder.ALLWAYS)
 
     def set_color(self, color, priority: int):
         for group in self.__groups.values():

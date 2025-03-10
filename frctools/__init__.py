@@ -1,4 +1,4 @@
-from .timer import Timer, CoroutineOrder, Coroutine
+from .timer import Timer, CoroutineOrder, Coroutine, ConcurrentEvent
 from .component import Component
 from .robot import RobotBase, Alliance
 from .servo import Servo
@@ -13,6 +13,7 @@ __all__ = [
     'Timer',
     'CoroutineOrder',
     'Coroutine',
+    'ConcurrentEvent',
     'Component',
     'RobotBase',
     'Alliance',
