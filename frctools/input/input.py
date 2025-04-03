@@ -1,3 +1,4 @@
+import math
 from typing import Dict, Union
 from enum import Enum
 
@@ -33,7 +34,7 @@ class PowerTransform:
         self.power = max(power, 0)
 
     def evaluate(self, value: float) -> float:
-        return abs(value) ** self.power * (1. if value >= 0 else -1.)
+        return math.pow(abs(value), self.power) * (1. if value >= 0 else -1.)
 
     def __call__(self, value: float) -> float:
         return self.evaluate(value)
