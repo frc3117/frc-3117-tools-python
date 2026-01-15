@@ -81,7 +81,7 @@ class SwerveCalibratorModule:
         self.set_direction_motor_inverted(False)
 
         self.set_drive_encoder_inverted(False)
-        self.set_drive_encoder_inverted(False)
+        self.set_drive_motor_inverted(False)
 
         self.__direction_offset = 0.
 
@@ -123,7 +123,7 @@ class SwerveCalibrator(Component):
     def __sequence__(self):
         yield None
 
-        # Allign Direction
+        # Align Direction
         yield from self.__align_direction__()
 
         # Turn Direction
@@ -141,7 +141,7 @@ class SwerveCalibrator(Component):
         yield from self.__test_drive__()
 
     def __align_direction__(self):
-        print('Allign all the swerve module in position to move forward')
+        print('Align all the swerve module in position to move forward')
         yield from self.wait_for_next()
 
         for mod in self.__modules:
