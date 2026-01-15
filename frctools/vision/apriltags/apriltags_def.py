@@ -117,6 +117,41 @@ REEFSCAPE_2025_APRIL_TAGS = {
 	22: AprilTagDefinition(22, 165.1, Vector3(4.904739999999999, 3.3063179999999996, 0.308102), Quaternion(-0.0, 0.0, 0.49999999999999994, -0.8660254037844387)),
 }
 
+REBUILT_2026_APRIL__TAGS = {
+	1: AprilTagDefinition(1, 165.1, Vector3(11.8779798, 7.4247756, 0.889), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	2: AprilTagDefinition(2, 165.1, Vector3(11.9154194, 4.638039999999999, 1.12395), Quaternion(0.0, 0.0, 0.7071067811865476, 0.7071067811865476)),
+	3: AprilTagDefinition(3, 165.1, Vector3(11.3118646, 4.3902376, 1.12395), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	4: AprilTagDefinition(4, 165.1, Vector3(11.3118646, 4.0346376, 1.12395), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	5: AprilTagDefinition(5, 165.1, Vector3(11.9154194, 3.4312351999999997, 1.12395), Quaternion(-0.0, 0.0, 0.7071067811865476, -0.7071067811865475)),
+	6: AprilTagDefinition(6, 165.1, Vector3(11.8779798, 0.6444996, 0.889), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	7: AprilTagDefinition(7, 165.1, Vector3(11.9528844, 0.6444996, 0.889), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	8: AprilTagDefinition(8, 165.1, Vector3(12.2710194, 3.4312351999999997, 1.12395), Quaternion(-0.0, 0.0, 0.7071067811865476, -0.7071067811865475)),
+	9: AprilTagDefinition(9, 165.1, Vector3(12.519177399999998, 3.6790375999999996, 1.12395), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	10: AprilTagDefinition(10, 165.1, Vector3(12.519177399999998, 4.0346376, 1.12395), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	11: AprilTagDefinition(11, 165.1, Vector3(12.2710194, 4.638039999999999, 1.12395), Quaternion(0.0, 0.0, 0.7071067811865476, 0.7071067811865476)),
+	12: AprilTagDefinition(12, 165.1, Vector3(11.9528844, 7.4247756, 0.889), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	13: AprilTagDefinition(13, 165.1, Vector3(16.5333172, 7.4033126, 0.55245), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	14: AprilTagDefinition(14, 165.1, Vector3(16.5333172, 6.9715126, 0.55245), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	15: AprilTagDefinition(15, 165.1, Vector3(16.5329616, 4.3235626, 0.55245), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	16: AprilTagDefinition(16, 165.1, Vector3(16.5329616, 3.8917626, 0.55245), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	17: AprilTagDefinition(17, 165.1, Vector3(4.6630844, 0.6444996, 0.889), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	18: AprilTagDefinition(18, 165.1, Vector3(4.6256194, 3.4312351999999997, 1.12395), Quaternion(-0.0, 0.0, 0.7071067811865476, -0.7071067811865475)),
+	19: AprilTagDefinition(19, 165.1, Vector3(5.229174199999999, 3.6790375999999996, 1.12395), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	20: AprilTagDefinition(20, 165.1, Vector3(5.229174199999999, 4.0346376, 1.12395), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	21: AprilTagDefinition(21, 165.1, Vector3(4.6256194, 4.638039999999999, 1.12395), Quaternion(0.0, 0.0, 0.7071067811865476, 0.7071067811865476)),
+	22: AprilTagDefinition(22, 165.1, Vector3(4.6630844, 7.4247756, 0.889), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	23: AprilTagDefinition(23, 165.1, Vector3(4.5881798, 7.4247756, 0.889), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	24: AprilTagDefinition(24, 165.1, Vector3(4.2700194, 4.638039999999999, 1.12395), Quaternion(0.0, 0.0, 0.7071067811865476, 0.7071067811865476)),
+	25: AprilTagDefinition(25, 165.1, Vector3(4.0218614, 4.3902376, 1.12395), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	26: AprilTagDefinition(26, 165.1, Vector3(4.0218614, 4.0346376, 1.12395), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	27: AprilTagDefinition(27, 165.1, Vector3(4.2700194, 3.4312351999999997, 1.12395), Quaternion(-0.0, 0.0, 0.7071067811865476, -0.7071067811865475)),
+	28: AprilTagDefinition(28, 165.1, Vector3(4.5881798, 0.6444996, 0.889), Quaternion(0.0, 0.0, 1.0, 6.123233995736766e-17)),
+	29: AprilTagDefinition(29, 165.1, Vector3(0.0077469999999999995, 0.6659626, 0.55245), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	30: AprilTagDefinition(30, 165.1, Vector3(0.0077469999999999995, 1.0977626, 0.55245), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	31: AprilTagDefinition(31, 165.1, Vector3(0.0080772, 3.7457125999999996, 0.55245), Quaternion(0.0, 0.0, 0.0, 1.0)),
+	32: AprilTagDefinition(32, 165.1, Vector3(0.0080772, 4.1775126, 0.55245), Quaternion(0.0, 0.0, 0.0, 1.0))
+}
+
 
 class AprilTagsFieldPose:
 	def __init__(self, red_id: int, blue_id: int, tags_definition):

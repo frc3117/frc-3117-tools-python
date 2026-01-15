@@ -12,7 +12,7 @@ class MotorGroup:
 
 
 try:
-    from rev import SparkBase, SparkBaseConfig, SparkMax, SparkMaxConfig, SparkFlex, SparkFlexConfig
+    from rev import SparkBase, SparkBaseConfig, SparkMax, SparkMaxConfig, SparkFlex, SparkFlexConfig, ResetMode, PersistMode
 
 
     def __motor_type_from_bool__(b: bool) -> SparkBase.MotorType:
@@ -63,7 +63,7 @@ try:
             #return self.getInverted()
 
         def __apply_config__(self):
-            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+            self.configure(self.__config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
 
 
     class WPI_CANSparkFlex(SparkFlex):
@@ -93,7 +93,7 @@ try:
 
         def set_brake(self, brake: bool):
             self.__config.setIdleMode(__brake_from_bool__(brake))
-            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+            self.configure(self.__config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
 
         def get_brake(self) -> bool:
             return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
@@ -106,7 +106,7 @@ try:
             #return self.getInverted()
 
         def __apply_config__(self):
-            self.configure(self.__config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+            self.configure(self.__config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
 
 except ImportError:
     class WPI_CANSparkMax:

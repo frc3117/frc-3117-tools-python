@@ -239,11 +239,25 @@ class Timer:
 
         return period
 
+    @staticmethod
+    def is_enabled():
+        return wpilib.DriverStation.isEnabled()
 
+    @staticmethod
+    def is_auto():
+        return wpilib.DriverStation.isAutonomous()
+
+    @staticmethod
+    def is_teleop():
+        return wpilib.DriverStation.isTeleop()
 
     @staticmethod
     def get_delta_time():
         return Timer.__DT
+
+    @staticmethod
+    def get_current_field_time():
+        return wpilib.Timer.getMatchTime()
 
     @staticmethod
     def get_current_time():
