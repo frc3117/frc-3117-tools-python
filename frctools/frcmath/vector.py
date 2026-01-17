@@ -1,5 +1,10 @@
-from typing import Tuple, List
 from .math import angle_normalize
+
+
+from wpimath.geometry import Translation2d, Translation3d
+
+
+from typing import Tuple, List
 
 import math
 
@@ -208,6 +213,9 @@ class Vector2(VectorBase):
     def __len__(self):
         return 2
 
+    def to_translation2d(self) -> Translation2d:
+        return Translation2d(self.x, self.y)
+
 
 class Vector3(VectorBase):
     def __init__(self, x: float = 0., y: float = 0., z: float = 0.):
@@ -257,6 +265,9 @@ class Vector3(VectorBase):
 
     def __len__(self):
         return 3
+
+    def to_translation3d(self) -> Translation3d:
+        return Translation3d(self.x, self.y, self.z)
 
 
 class Vector4(VectorBase):

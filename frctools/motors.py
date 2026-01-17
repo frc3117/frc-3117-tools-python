@@ -31,36 +31,37 @@ try:
 
             self.__config = SparkMaxConfig()
             self.__config.setIdleMode(__brake_from_bool__(brake))
-            #self.__config.setInverted(inverted)
-            #self.setInverted(inverted)
 
             self.__apply_config__()
 
-        def get(self) -> float:
-            return self.__encoder.getVelocity()
+        def get_position(self) -> float:
+            return self.__encoder.getPosition()
+        def set_position(self, position: float):
+            self.__encoder.setPosition(position)
+        def set_position_conversion_factor(self, conversion_factor: float):
+            self.__config.encoder.positionConversionFactor(conversion_factor)
+            self.__apply_config__()
+
         def set(self, speed: float):
             super().set(speed * (-1 if self.__inverted else 1))
+        def get(self) -> float:
+            return self.__encoder.getVelocity()
 
-        def set_voltage(self, voltage: float):
-            self.setVoltage(voltage * (-1 if self.__inverted else 1))
         def get_voltage(self) -> float:
             return self.getBusVoltage()
+        def set_voltage(self, voltage: float):
+            self.setVoltage(voltage * (-1 if self.__inverted else 1))
 
+        def get_brake(self) -> bool:
+            return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
         def set_brake(self, brake: bool):
             self.__config.setIdleMode(__brake_from_bool__(brake))
             self.__apply_config__()
-        def get_brake(self) -> bool:
-            return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
 
-        def set_inverted(self, inverted: bool):
-            self.__inverted = inverted
-            #self.__config.setInverted(inverted)
-            #self.setInverted(inverted)
-
-            #self.__apply_config__()
         def get_inverted(self) -> bool:
             return self.__inverted
-            #return self.getInverted()
+        def set_inverted(self, inverted: bool):
+            self.__inverted = inverted
 
         def __apply_config__(self):
             self.configure(self.__config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
@@ -75,9 +76,15 @@ try:
 
             self.__config = SparkFlexConfig()
             self.__config.setIdleMode(__brake_from_bool__(brake))
-            #self.__config.setInverted(inverted)
-            #self.setInverted(inverted)
 
+            self.__apply_config__()
+
+        def get_position(self) -> float:
+            return self.__encoder.getPosition()
+        def set_position(self, position: float):
+            self.__encoder.setPosition(position)
+        def set_position_conversion_factor(self, conversion_factor: float):
+            self.__config.encoder.positionConversionFactor(conversion_factor)
             self.__apply_config__()
 
         def get(self) -> float:
@@ -85,25 +92,21 @@ try:
         def set(self, speed: float):
             super().set(speed * (-1 if self.__inverted else 1))
 
+        def get_voltage(self) -> float:
+            return self.getBusVoltage()
         def set_voltage(self, voltage: float):
             self.setVoltage(voltage * (-1 if self.__inverted else 1))
 
-        def get_voltage(self) -> float:
-            return self.getBusVoltage()
-
-        def set_brake(self, brake: bool):
-            self.__config.setIdleMode(__brake_from_bool__(brake))
-            self.configure(self.__config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)
-
         def get_brake(self) -> bool:
             return self.configAccessor.getIdleMode() == SparkBase.IdleMode.kBrake
+        def set_brake(self, brake: bool):
+            self.__config.setIdleMode(__brake_from_bool__(brake))
+            self.__apply_config__()
 
-        def set_inverted(self, inverted: bool):
-            self.__inverted = inverted
-            #self.setInverted(inverted)
         def get_inverted(self) -> bool:
             return self.__inverted
-            #return self.getInverted()
+        def set_inverted(self, inverted: bool):
+            self.__inverted = inverted
 
         def __apply_config__(self):
             self.configure(self.__config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters)

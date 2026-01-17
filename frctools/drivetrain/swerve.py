@@ -1,12 +1,19 @@
-from typing import List
+from wpimath.geometry import Rotation3d, Rotation2d
+
 from frctools import Component, Coroutine, CoroutineOrder, Timer
 from frctools.input import Input
 from frctools.frcmath import Vector2, Polar, repeat, lerp, angle_normalize, delta_angle
-from enum import Enum
+
+
+from wpimath.kinematics import SwerveDrive4Kinematics, SwerveModulePosition
 
 import math
 import wpilib
 import wpiutil
+
+
+from typing import List, Tuple
+from enum import Enum
 
 
 class SwerveDriveMode(int, Enum):
@@ -68,6 +75,7 @@ class SwerveModule:
         self.speed = 1.
         self.cosine_compensation = cosine_compensation
 
+        self.position = position
         self.rotation_vector = Vector2(position.y, -position.x).normalize()
 
         self.__translation: Vector2 = Vector2.zero()
@@ -196,9 +204,13 @@ class SwerveModule:
         return Vector2(vel * math.cos(angle),
                        vel * math.sin(angle))
 
+    def get_module_position(self) -> SwerveModulePosition:
+        return SwerveModulePosition(self.drive_motor.get_position(), self.get_steer_angle())
+
 
 class SwerveDrive(Component):
-    def __init__(self, modules: List[SwerveModule],
+    def __init__(self,
+                 modules: List[SwerveModule],
                  imu: wpilib.ADIS16448_IMU,
                  imu_offset: float = 0.,
                  start_heading: float = 0.):
@@ -287,6 +299,32 @@ class SwerveDrive(Component):
 
     def set_local_offset(self, offset: float):
         self.local_offset = offset
+
+    def get_swerve_4kinematics(self):
+        kinematics = SwerveDrive4Kinematics(
+            self.modules[0].position.to_translation2d(),
+            self.modules[1].position.to_translation2d(),
+            self.modules[2].position.to_translation2d(),
+            self.modules[3].position.to_translation2d()
+        )
+
+        return kinematics
+
+    def get_gyro_angle2d(self) -> Rotation2d:
+        return Rotation2d.fromDegrees(self.imu.getAngle())
+
+    def get_gyro_angle3d(self) -> Rotation3d:
+        return Rotation3d.fromDegrees(self.imu.getGyroAngleX(),
+                                      self.imu.getGyroAngleY(),
+                                      self.imu.getGyroAngleZ())
+
+    def get_modules_positions4(self) -> Tuple[SwerveModulePosition, SwerveModulePosition, SwerveModulePosition, SwerveModulePosition]:
+        return (
+            self.modules[0].get_module_position(),
+            self.modules[1].get_module_position(),
+            self.modules[2].get_module_position(),
+            self.modules[3].get_module_position()
+        )
 
     def initSendable(self, builder: wpiutil.SendableBuilder):
         builder.addDoubleProperty('heading', self.get_heading, lambda v: None)
