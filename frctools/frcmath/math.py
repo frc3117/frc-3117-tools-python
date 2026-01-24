@@ -59,6 +59,11 @@ def delta_angle(current: float, target: float) -> float:
     delta_ang = clamp(t - math.floor(t / length) * length, 0., length)
     return delta_ang - (math.tau if delta_ang > math.pi else 0)
 
+def between(a: float, b: float, v: float, inclusive: bool = True) -> bool:
+    if inclusive:
+        return a <= v <= b
+    return a < v < b
+
 
 def __get_power_of__(num: float, power: float, method) -> float:
     if num <= 0:

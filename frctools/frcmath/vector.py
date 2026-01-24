@@ -34,7 +34,7 @@ class VectorBase:
     def __refresh_sqr_magnitude__(self):
         mag = 0
         for val in self:
-            mag += math.pow(val, 2)
+            mag += val * val
 
         self.__sqr_magnitude = mag
 
@@ -89,10 +89,12 @@ class VectorBase:
 
     def __add__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
+        new_vec = self.__class__(0., 0., 0.)
         for i in range(len(self)):
-            other_vec[i] += self[i]
+            new_vec[i] = self[i] + other_vec[i]
 
-        return self.__class__.from_list(other_vec)
+        new_vec.__refresh_magnitude__()
+        return new_vec
 
     def __iadd__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
@@ -103,10 +105,12 @@ class VectorBase:
 
     def __sub__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
+        new_vec = self.__class__(0., 0., 0.)
         for i in range(len(self)):
-            other_vec[i] -= self[i]
+            new_vec[i] = self[i] - other_vec[i]
 
-        return self.__class__.from_list(other_vec)
+        new_vec.__refresh_magnitude__()
+        return new_vec
 
     def __isub__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
@@ -117,10 +121,12 @@ class VectorBase:
 
     def __mul__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
+        new_vec = self.__class__(0., 0., 0.)
         for i in range(len(self)):
-            other_vec[i] *= self[i]
+            new_vec[i] = self[i] * other_vec[i]
 
-        return self.__class__.from_list(other_vec)
+        new_vec.__refresh_magnitude__()
+        return new_vec
 
     def __imul__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
@@ -131,10 +137,12 @@ class VectorBase:
 
     def __truediv__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
+        new_vec = self.__class__(0., 0., 0.)
         for i in range(len(self)):
-            other_vec[i] = self[i] / other_vec[i]
+            new_vec[i] = self[i] / other_vec[i]
 
-        return self.__class__.from_list(other_vec)
+        new_vec.__refresh_magnitude__()
+        return new_vec
 
     def __itruediv__(self, other):
         other_vec = __get_vec_from_other__(len(self), other)
@@ -161,6 +169,28 @@ class VectorBase:
 
     def __repr__(self):
         return f"{type(self)}({str(self)})"
+
+
+class Range(VectorBase):
+    def __init__(self, min: float, max: float):
+        super().__init__(float(min), float(max))
+
+    @property
+    def min(self):
+        return self[0]
+    @min.setter
+    def min(self, value: float):
+        self[0] = value
+
+    @property
+    def max(self):
+        return self[1]
+    @max.setter
+    def max(self, value: float):
+        self[1] = value
+
+    def __len__(self):
+        return 2
 
 
 class Vector2(VectorBase):
